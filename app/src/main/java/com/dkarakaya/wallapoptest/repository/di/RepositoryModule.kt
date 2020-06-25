@@ -1,6 +1,6 @@
 package com.dkarakaya.wallapoptest.repository.di
 
-import com.dkarakaya.wallapoptest.model.Product
+import com.dkarakaya.wallapoptest.model.remote.ProductRemoteModel
 import com.dkarakaya.wallapoptest.repository.ProductRepository
 import com.dkarakaya.wallapoptest.repository.gsonadapter.ProductDeserializer
 import com.google.gson.Gson
@@ -17,7 +17,7 @@ class RepositoryModule {
     @Provides
     fun provideProductDeserializer(): Gson {
         return GsonBuilder().registerTypeAdapter(
-            Product::class.java,
+            ProductRemoteModel::class.java,
             ProductDeserializer()
         ).create()
     }

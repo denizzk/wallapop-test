@@ -7,4 +7,55 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- Headline -->
+
+    <style name="customTextAppearanceHeadline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:fontFamily">@font/medium</item>
+        <item name="fontFamily">@font/medium</item>
+        <item name="android:textSize">@dimen/text_size_XXL</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:letterSpacing">0.008</item>
+    </style>
+
+    <style name="customTextAppearanceHeadline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:fontFamily">@font/medium</item>
+        <item name="fontFamily">@font/medium</item>
+        <item name="android:textSize">@dimen/text_size_XL</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="customTextAppearanceHeadline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:fontFamily">@font/regular</item>
+        <item name="fontFamily">@font/regular</item>
+        <item name="android:textSize">@dimen/text_size_L</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="customTextAppearanceLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:fontFamily">@font/regular</item>
+        <item name="fontFamily">@font/regular</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_size_M</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:letterSpacing">@dimen/text_letter_spacing</item>
+    </style>
+
+    <!-- Text Heading -->
+
+    <style name="TextH1">
+        <item name="android:textAppearance">@style/customTextAppearanceHeadline1</item>
+        <item name="android:lineSpacingExtra">8sp</item>
+    </style>
+
+    <style name="TextH2">
+        <item name="android:textAppearance">@style/customTextAppearanceHeadline2</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="TextH3">
+        <item name="android:textAppearance">@style/customTextAppearanceHeadline3</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
 </resources>

@@ -1,6 +1,6 @@
 package com.dkarakaya.wallapoptest.repository.gsonadapter
 
-import com.dkarakaya.wallapoptest.model.*
+import com.dkarakaya.wallapoptest.model.remote.*
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -8,13 +8,13 @@ import com.google.gson.JsonObject
 import timber.log.Timber
 import java.lang.reflect.Type
 
-class ProductDeserializer : JsonDeserializer<Product> {
+class ProductDeserializer : JsonDeserializer<ProductRemoteModel> {
 
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
         context: JsonDeserializationContext?
-    ): Product? {
+    ): ProductRemoteModel? {
         if (json == null) {
             return null
         }
@@ -22,10 +22,21 @@ class ProductDeserializer : JsonDeserializer<Product> {
         val kindElement: JsonElement = jsonObject.get("kind")
         val itemElement: JsonElement = jsonObject.get("item")
 
-        return Product(
-            kind = kindElement.asString,
-            item = item(kindElement, itemElement, context)
-        )
+        return kindElement.asProductKind()?.let {
+            ProductRemoteModel(
+                kind = it,
+                item = item(kindElement, itemElement, context)
+            )
+        }
+    }
+
+    private fun JsonElement.asProductKind(): ProductKind?{
+        return when(this.asString){
+            "car" -> ProductKind.CAR
+            "consumer_goods" -> ProductKind.CONSUMER_GOODS
+            "service" -> ProductKind.SERVICE
+            else -> null
+        }
     }
 
     private fun item(
@@ -45,3 +56,4 @@ class ProductDeserializer : JsonDeserializer<Product> {
         return context?.deserialize(itemElement, itemClass) as Item
     }
 }
+
