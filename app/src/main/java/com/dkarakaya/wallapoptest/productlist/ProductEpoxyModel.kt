@@ -14,14 +14,14 @@ import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.dkarakaya.core.util.uppercaseFirstLetterAndLowercaseRest
 import com.dkarakaya.wallapoptest.R
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
+import com.dkarakaya.wallapoptest.model.ProductItemModel
 
 
 @EpoxyModelClass
-abstract class ProductEpoxyModel : EpoxyModelWithHolder<ProductEpoxyModel.ProductHolder>() {
+abstract class ProductEpoxyModel : EpoxyModelWithHolder<ProductEpoxyModel.ItemHolder>() {
 
     @EpoxyAttribute
-    lateinit var productItem: ProductItemModel
+    lateinit var item: ProductItemModel
 
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
     lateinit var onClickListener: View.OnClickListener
@@ -30,7 +30,7 @@ abstract class ProductEpoxyModel : EpoxyModelWithHolder<ProductEpoxyModel.Produc
         return R.layout.item_service
     }
 
-    override fun bind(holder: ProductHolder) {
+    override fun bind(holder: ItemHolder) {
         holder.apply {
             val dimensionPixelSize =
                 root.context.resources.getDimension(R.dimen.default_border_radius)
@@ -48,17 +48,17 @@ abstract class ProductEpoxyModel : EpoxyModelWithHolder<ProductEpoxyModel.Produc
             Glide
                 .with(icon)
                 .asBitmap()
-                .load(productItem.image)
+                .load(item.image)
                 .apply(requestOptions)
                 .into(icon)
 
-            textPrice.text = productItem.price
-            textName.text = productItem.name.uppercaseFirstLetterAndLowercaseRest()
+            textPrice.text = item.price
+            textName.text = item.name.uppercaseFirstLetterAndLowercaseRest()
             root.setOnClickListener(onClickListener)
         }
     }
 
-    inner class ProductHolder : EpoxyHolder() {
+    inner class ItemHolder : EpoxyHolder() {
 
         lateinit var icon: ImageView
         lateinit var textPrice: TextView

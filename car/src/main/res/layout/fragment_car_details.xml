@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_base_bottom_sheet">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="exitUntilCollapsed|scroll">
+
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier=".5"/>
+
+            <ImageView
+                android:id="@+id/imageItem"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_launcher_background"
+                android:contentDescription="@null" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/small_cell_height"
+            android:paddingHorizontal="@dimen/spacing_L"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageItem">
+
+            <TextView
+                android:id="@+id/textAmount"
+                style="@style/TextH1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="196,000.00 €" />
+
+            <TextView
+                android:id="@+id/textName"
+                style="@style/TextH2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_S"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textAmount"
+                tools:text="Volkswagen AG" />
+
+            <TextView
+                android:id="@+id/textDistance"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/spacing_XXXL"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textName"
+                tools:text="500 meters away" />
+
+            <TextView
+                android:id="@+id/titleBrand"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/brand"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/titleGearbox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textDistance"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textBrand"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintEnd_toEndOf="@id/titleBrand"
+                app:layout_constraintStart_toStartOf="@id/titleBrand"
+                app:layout_constraintTop_toBottomOf="@id/titleBrand"
+                tools:text="Audi" />
+
+            <TextView
+                android:id="@+id/titleGearbox"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="248dp"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/gearbox"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/titleBrand"
+                app:layout_constraintEnd_toStartOf="@+id/titleMotor"
+                app:layout_constraintStart_toEndOf="@id/titleBrand"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textGearbox"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintEnd_toEndOf="@id/titleGearbox"
+                app:layout_constraintStart_toStartOf="@id/titleGearbox"
+                app:layout_constraintTop_toBottomOf="@id/titleGearbox"
+                tools:text="Manual" />
+
+            <TextView
+                android:id="@+id/titleMotor"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/motor"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/titleBrand"
+                app:layout_constraintEnd_toStartOf="@+id/titleKm"
+                app:layout_constraintStart_toEndOf="@id/titleGearbox"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textMotor"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_XS"
+                app:layout_constraintBottom_toBottomOf="@id/textBrand"
+                app:layout_constraintEnd_toEndOf="@id/titleMotor"
+                app:layout_constraintStart_toStartOf="@id/titleMotor"
+                app:layout_constraintTop_toBottomOf="@id/titleMotor"
+                tools:text="Diesel" />
+
+            <TextView
+                android:id="@+id/titleKm"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/km"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/titleBrand"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/titleMotor"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textKm"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintBottom_toTopOf="@id/textDescription"
+                app:layout_constraintEnd_toEndOf="@id/titleKm"
+                app:layout_constraintStart_toStartOf="@id/titleKm"
+                app:layout_constraintTop_toBottomOf="@id/titleKm"
+                tools:text="148,000" />
+
+            <TextView
+                android:id="@+id/textDescription"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_XXXL"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textBrand"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="Volkswagen AG" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

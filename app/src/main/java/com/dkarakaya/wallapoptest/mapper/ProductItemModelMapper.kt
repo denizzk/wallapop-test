@@ -1,9 +1,9 @@
 package com.dkarakaya.wallapoptest.mapper
 
+import com.dkarakaya.core.model.*
 import com.dkarakaya.core.util.formatPrice
-import com.dkarakaya.wallapoptest.model.remote.*
-import com.dkarakaya.wallapoptest.model.domain.ProductItem
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
+import com.dkarakaya.wallapoptest.model.ProductItem
+import com.dkarakaya.wallapoptest.model.ProductItemModel
 
 fun ProductRemoteModel.mapToProductItemModel(): ProductItemModel {
     return ProductItemModel(

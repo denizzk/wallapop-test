@@ -3,7 +3,7 @@ package com.dkarakaya.wallapoptest.di
 import androidx.lifecycle.ViewModel
 import com.dkarakaya.core.di.ViewModelKey
 import com.dkarakaya.wallapoptest.ProductListViewModel
-import com.dkarakaya.wallapoptest.repository.ProductRepository
+import com.dkarakaya.core.repository.ProductRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -19,7 +19,7 @@ interface ProductListViewModelModule {
 
     companion object {
         @Provides
-        fun provideTransactionViewModel(productRepository: ProductRepository): ProductListViewModel {
+        fun provideProductViewModel(productRepository: ProductRepository): ProductListViewModel {
             return ProductListViewModel(
                 productRepository = productRepository
             )

@@ -1,9 +1,9 @@
 package com.dkarakaya.wallapoptest
 
 import androidx.lifecycle.ViewModel
+import com.dkarakaya.wallapoptest.model.ProductItemModel
+import com.dkarakaya.core.repository.ProductRepository
 import com.dkarakaya.wallapoptest.mapper.mapToProductItemModel
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
-import com.dkarakaya.wallapoptest.repository.ProductRepository
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -26,9 +26,7 @@ class ProductListViewModel @Inject constructor(
 
     // outputs
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
-//    private val carItemListOutput = BehaviorSubject.create<List<Car>>()
-//    private val consumerGoodsItemListOutput = BehaviorSubject.create<List<ConsumerGoods>>()
-//    private val serviceItemListOutput = BehaviorSubject.create<List<Service>>()
+    private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
 
     init {
         // distinct and sorted by distance product list stream
@@ -46,6 +44,7 @@ class ProductListViewModel @Inject constructor(
             )
             .addTo(disposables)
 
+        // TODO: fix
         // sort list by sorting type
         sortingTypeInput
             .withLatestFrom(productListOutput) { type, productList ->
@@ -58,47 +57,10 @@ class ProductListViewModel @Inject constructor(
             }
             .subscribeOn(Schedulers.computation())
             .subscribeBy(
-                onNext = productListOutput::onNext,
+                onNext = sortedProductListOutput::onNext,
                 onError = Timber::e
             )
             .addTo(disposables)
-
-//        // car item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .filter { it.kind == "car" }
-//            .toList()
-//            .subscribeBy(
-//                onSuccess = carItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
-//
-//        // consumer goods item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .ofType<ConsumerGoods>()
-//            .toSortedList { consumerGoods1, consumerGoods2 ->
-//                consumerGoods1.distanceInMeters.compareTo(consumerGoods2.distanceInMeters)
-//            }
-//            .subscribeBy(
-//                onSuccess = consumerGoodsItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
-//
-//        // service item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .ofType<Service>()
-//            .toSortedList { service1, service2 ->
-//                service1.distanceInMeters.compareTo(service2.distanceInMeters)
-//            }
-//            .subscribeBy(
-//                onSuccess = serviceItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
     }
 
     private fun sortList(
@@ -148,8 +110,7 @@ class ProductListViewModel @Inject constructor(
      */
 
     fun getProductList(): Observable<List<ProductItemModel>> = productListOutput
-//    fun getCarList(): Observable<List<Car>> = carItemListOutput
-//    fun getConsumerList(): Observable<List<ConsumerGoods>> = consumerGoodsItemListOutput
+    fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
 
     /**
      * Methods

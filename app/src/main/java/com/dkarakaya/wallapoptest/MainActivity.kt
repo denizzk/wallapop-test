@@ -1,9 +1,9 @@
 package com.dkarakaya.wallapoptest
 
+import android.content.Intent
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.dkarakaya.car.CarActivity
 import com.dkarakaya.core.viewmodel.ViewModelFactory
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
 import com.dkarakaya.wallapoptest.productlist.ProductController
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,8 +28,8 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
 
     override fun onStart() {
         super.onStart()
-
 //        registerSubscriptions()
+        registerListeners()
 
         initRecyclerView()
     }
@@ -44,10 +44,17 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { text_view.text = it.toString() },
+                onNext = { it.toString() },
                 onError = Timber::e
             )
             .addTo(disposables)
+    }
+
+    private fun registerListeners() {
+        buttonCar.setOnClickListener {
+            val intent = Intent(this, CarActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initRecyclerView() {
@@ -58,7 +65,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         }
         showProducts(controller)
         controller.productClickListener = { product ->
-//            showProductDetails(product)
+//            showDetails(product)
         }
     }
 

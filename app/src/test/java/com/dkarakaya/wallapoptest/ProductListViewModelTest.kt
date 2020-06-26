@@ -1,10 +1,16 @@
 package com.dkarakaya.wallapoptest
 
+import com.dkarakaya.core.model.ProductKind
+import com.dkarakaya.core.model.ProductRemoteModel
+import com.dkarakaya.core.repository.ProductRepository
+import com.dkarakaya.core.util.await
+import com.dkarakaya.test_utils.ProductFactory.dummyCar
+import com.dkarakaya.test_utils.ProductFactory.dummyConsumerGoods
+import com.dkarakaya.test_utils.ProductFactory.dummyProduct
+import com.dkarakaya.test_utils.ProductFactory.dummyService
 import com.dkarakaya.wallapoptest.ProductListViewModel.SortingType
-import com.dkarakaya.wallapoptest.model.domain.ProductItem
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
-import com.dkarakaya.wallapoptest.model.remote.*
-import com.dkarakaya.wallapoptest.repository.ProductRepository
+import com.dkarakaya.wallapoptest.model.ProductItem
+import com.dkarakaya.wallapoptest.model.ProductItemModel
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Observable
@@ -25,7 +31,7 @@ class ProductListViewModelTest {
         val product2 = dummyProduct(item = dummyConsumerGoods(id = "456"))
         givenProductList(listOf(product1, product2))
 
-        val getProductList = viewModel.getProductList().test()
+        val getProductList = viewModel.getProductList().test().await(2)
 
         getProductList
             .assertValue(
@@ -43,7 +49,7 @@ class ProductListViewModelTest {
         val product = dummyProduct()
         givenProductList(listOf(product, product))
 
-        val getProductList = viewModel.getProductList().test()
+        val getProductList = viewModel.getProductList().test().await(1)
 
         getProductList
             .assertValue(listOf(dummyProductItem()))
@@ -64,7 +70,7 @@ class ProductListViewModelTest {
             )
         )
 
-        val getProductList = viewModel.getProductList().test()
+        val getProductList = viewModel.getProductList().test().await(3)
 
         getProductList
             .assertValue(
@@ -72,10 +78,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CAR,
                         id = "123",
-                        image = "https://test.jpg",
-                        price = "1000€",
+                        price = "1,000.00 €",
                         name = "duis",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 100,
                         item = dummyCarItem(
                             motor = "gasoline",
@@ -87,10 +91,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CONSUMER_GOODS,
                         id = "567",
-                        image = "https://test.jpg",
-                        price = "10€",
+                        price = "10.00 €",
                         name = "ball",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 150,
                         item = dummyConsumerGoodsItem(
                             color = "pink",
@@ -100,10 +102,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.SERVICE,
                         id = "345",
-                        image = "https://test.jpg",
-                        price = "100€",
+                        price = "100.00 €",
                         name = "pariatur",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 200,
                         item = dummyServiceItem(
                             closeDay = "monday",
@@ -131,33 +131,28 @@ class ProductListViewModelTest {
         )
 
         viewModel.setSortingType(SortingType.DISTANCE_DESC)
-        val getProductList = viewModel.getProductList().test()
+        val getProductList = viewModel.getProductList().test().await(3)
 
         getProductList
             .assertValue(
                 listOf(
                     dummyProductItem(
-                        kind = ProductKind.CAR,
-                        id = "123",
-                        image = "https://test.jpg",
-                        price = "1000€",
-                        name = "duis",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
-                        distanceInMeters = 100,
-                        item = dummyCarItem(
-                            motor = "gasoline",
-                            gearbox = "manual",
-                            brand = "irure",
-                            km = 1234
+                        kind = ProductKind.SERVICE,
+                        id = "345",
+                        price = "100.00 €",
+                        name = "pariatur",
+                        distanceInMeters = 200,
+                        item = dummyServiceItem(
+                            closeDay = "monday",
+                            category = "leisure",
+                            minimumAge = 18
                         )
                     ),
                     dummyProductItem(
                         kind = ProductKind.CONSUMER_GOODS,
                         id = "567",
-                        image = "https://test.jpg",
-                        price = "10€",
+                        price = "10.00 €",
                         name = "ball",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 150,
                         item = dummyConsumerGoodsItem(
                             color = "pink",
@@ -165,17 +160,16 @@ class ProductListViewModelTest {
                         )
                     ),
                     dummyProductItem(
-                        kind = ProductKind.SERVICE,
-                        id = "345",
-                        image = "https://test.jpg",
-                        price = "100€",
-                        name = "pariatur",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
-                        distanceInMeters = 200,
-                        item = dummyServiceItem(
-                            closeDay = "monday",
-                            category = "leisure",
-                            minimumAge = 18
+                        kind = ProductKind.CAR,
+                        id = "123",
+                        price = "1,000.00 €",
+                        name = "duis",
+                        distanceInMeters = 100,
+                        item = dummyCarItem(
+                            motor = "gasoline",
+                            gearbox = "manual",
+                            brand = "irure",
+                            km = 1234
                         )
                     )
                 )
@@ -197,8 +191,8 @@ class ProductListViewModelTest {
             )
         )
 
+        val getProductList = viewModel.getSortedProductList().test().await(3)
         viewModel.setSortingType(SortingType.PRICE_ASC)
-        val getProductList = viewModel.getProductList().test()
 
         getProductList
             .assertValue(
@@ -206,10 +200,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CONSUMER_GOODS,
                         id = "567",
-                        image = "https://test.jpg",
-                        price = "10€",
+                        price = "10.00 €",
                         name = "ball",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 150,
                         item = dummyConsumerGoodsItem(
                             color = "pink",
@@ -219,10 +211,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.SERVICE,
                         id = "345",
-                        image = "https://test.jpg",
-                        price = "100€",
+                        price = "100.00 €",
                         name = "pariatur",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 200,
                         item = dummyServiceItem(
                             closeDay = "monday",
@@ -233,10 +223,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CAR,
                         id = "123",
-                        image = "https://test.jpg",
-                        price = "1000€",
+                        price = "1,000.00 €",
                         name = "duis",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 100,
                         item = dummyCarItem(
                             motor = "gasoline",
@@ -264,7 +252,7 @@ class ProductListViewModelTest {
             )
         )
 
-        val getProductList = viewModel.getProductList().test()
+        val getProductList = viewModel.getProductList().test().await(3)
         viewModel.setSortingType(SortingType.PRICE_ASC)
 
         getProductList
@@ -273,10 +261,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CAR,
                         id = "123",
-                        image = "https://test.jpg",
-                        price = "1000€",
+                        price = "1,000.00 €",
                         name = "duis",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 100,
                         item = dummyCarItem(
                             motor = "gasoline",
@@ -288,10 +274,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.SERVICE,
                         id = "345",
-                        image = "https://test.jpg",
-                        price = "100€",
+                        price = "100.00 €",
                         name = "pariatur",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 200,
                         item = dummyServiceItem(
                             closeDay = "monday",
@@ -302,10 +286,8 @@ class ProductListViewModelTest {
                     dummyProductItem(
                         kind = ProductKind.CONSUMER_GOODS,
                         id = "567",
-                        image = "https://test.jpg",
-                        price = "10€",
+                        price = "10.00 €",
                         name = "ball",
-                        description = "Officia excepteur exercitation laborum tempor anim.",
                         distanceInMeters = 150,
                         item = dummyConsumerGoodsItem(
                             color = "pink",
@@ -322,21 +304,11 @@ class ProductListViewModelTest {
         whenever(productRepository.getProduct()).thenReturn(Observable.just(productList))
     }
 
-    private fun dummyProduct(
-        kind: ProductKind = ProductKind.CONSUMER_GOODS,
-        item: Item = dummyConsumerGoods()
-    ): ProductRemoteModel {
-        return ProductRemoteModel(
-            kind = kind,
-            item = item
-        )
-    }
-
     private fun dummyProductItem(
         kind: ProductKind = ProductKind.CONSUMER_GOODS,
         id: String = "123",
         image: String = "https://test.jpg",
-        price: String = "10€",
+        price: String = "10.00 €",
         name: String = "ball",
         description: String = "Officia excepteur exercitation laborum tempor anim.",
         distanceInMeters: Int = 100,
@@ -354,32 +326,6 @@ class ProductListViewModelTest {
         )
     }
 
-    private fun dummyCar(
-        id: String = "123",
-        image: String = "https://test.jpg",
-        price: String = "1000€",
-        name: String = "duis",
-        motor: String = "gasoline",
-        gearbox: String = "manual",
-        brand: String = "irure",
-        km: Int = 1234,
-        description: String = "Officia excepteur exercitation laborum tempor anim.",
-        distanceInMeters: Int = 100
-    ): Car {
-        return Car(
-            id = id,
-            image = image,
-            price = price,
-            name = name,
-            motor = motor,
-            gearbox = gearbox,
-            brand = brand,
-            km = km,
-            description = description,
-            distanceInMeters = distanceInMeters
-        )
-    }
-
     private fun dummyCarItem(
         motor: String = "gasoline",
         gearbox: String = "manual",
@@ -394,28 +340,6 @@ class ProductListViewModelTest {
         )
     }
 
-    private fun dummyConsumerGoods(
-        id: String = "123",
-        image: String = "https://test.jpg",
-        price: String = "10€",
-        name: String = "ball",
-        color: String = "pink",
-        category: String = "toy",
-        description: String = "Officia excepteur exercitation laborum tempor anim.",
-        distanceInMeters: Int = 100
-    ): ConsumerGoods {
-        return ConsumerGoods(
-            id = id,
-            image = image,
-            price = price,
-            name = name,
-            color = color,
-            category = category,
-            description = description,
-            distanceInMeters = distanceInMeters
-        )
-    }
-
     private fun dummyConsumerGoodsItem(
         color: String = "pink",
         category: String = "toy"
@@ -423,30 +347,6 @@ class ProductListViewModelTest {
         return ProductItem.ConsumerGoods(
             color = color,
             category = category
-        )
-    }
-
-    private fun dummyService(
-        id: String = "123",
-        image: String = "https://test.jpg",
-        price: String = "100€",
-        name: String = "pariatur",
-        closeDay: String = "monday",
-        category: String = "leisure",
-        minimumAge: Int = 18,
-        description: String = "Officia excepteur exercitation laborum tempor anim.",
-        distanceInMeters: Int = 100
-    ): Service {
-        return Service(
-            id = id,
-            image = image,
-            price = price,
-            name = name,
-            closeDay = closeDay,
-            category = category,
-            minimumAge = minimumAge,
-            description = description,
-            distanceInMeters = distanceInMeters
         )
     }
 

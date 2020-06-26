@@ -31,6 +31,7 @@
 
     <!--  Common View Dimens  -->
     <dimen name="default_border_radius">10dp</dimen>
+    <dimen name="small_border_radius">5dp</dimen>
     <dimen name="default_divider_height">2dp</dimen>
     <dimen name="toolbar_shadow_height">2dp</dimen>
     <dimen name="base_bottom_sheet_radius">3dp</dimen>

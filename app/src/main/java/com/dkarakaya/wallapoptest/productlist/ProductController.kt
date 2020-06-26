@@ -2,7 +2,7 @@ package com.dkarakaya.wallapoptest.productlist
 
 import android.view.View
 import com.airbnb.epoxy.EpoxyController
-import com.dkarakaya.wallapoptest.model.domain.ProductItemModel
+import com.dkarakaya.wallapoptest.model.ProductItemModel
 
 class ProductController : EpoxyController() {
 
@@ -18,7 +18,7 @@ class ProductController : EpoxyController() {
         products.forEachIndexed { id, product ->
             product {
                 id(id)
-                productItem(product)
+                item(product)
                 onClickListener(View.OnClickListener {
                     productClickListener(product)
                 })

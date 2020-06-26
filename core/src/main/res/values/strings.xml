@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Wallapop Test</string>
+    <string name="car">CAR</string>
+    <string name="service">SERVICE</string>
+    <string name="consumer_goods">CONSUMER GOODS</string>
+    <string name="motor">MOTOR</string>
+    <string name="gearbox">GEARBOX</string>
+    <string name="brand">BRAND</string>
+    <string name="km">KM</string>
+    <string name="distance_details">%s meters away</string>
 </resources>
