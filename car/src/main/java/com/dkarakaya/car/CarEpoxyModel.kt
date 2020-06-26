@@ -30,14 +30,13 @@ abstract class CarEpoxyModel : EpoxyModelWithHolder<CarEpoxyModel.ItemHolder>() 
 
     override fun bind(holder: ItemHolder) {
         holder.apply {
-            val dimensionPixelSize =
-                root.context.resources.getDimension(R.dimen.default_border_radius)
+            val dimension = root.context.resources.getDimension(R.dimen.default_border_radius)
             val requestOptions = RequestOptions()
                 .transform(
                     CenterCrop(),
                     GranularRoundedCorners(
-                        dimensionPixelSize,
-                        dimensionPixelSize,
+                        dimension,
+                        dimension,
                         0.toFloat(),
                         0.toFloat()
                     )

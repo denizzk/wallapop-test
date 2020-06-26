@@ -18,6 +18,8 @@
     <color name="lineDarkGrey">#c8d2dc</color>
     <color name="lineGrey">#e2e8ed</color>
 
+    <color name="transparent">#00FFFFFF</color>
+
     <!-- Button -->
     <color name="ripple_light">#1f000000</color>
     <!-- Button Colors -->

@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -124,6 +124,12 @@
     <style name="UiButton.Red">
         <item name="rippleColor">@color/ripple_light</item>
         <item name="backgroundTint">@color/background_state_red</item>
+    </style>
+
+    <style name="UiButton.Share">
+        <item name="rippleColor">@color/ripple_light</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:minHeight">50dp</item>
     </style>
 
 </resources>

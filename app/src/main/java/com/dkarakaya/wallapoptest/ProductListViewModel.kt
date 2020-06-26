@@ -1,9 +1,9 @@
 package com.dkarakaya.wallapoptest
 
 import androidx.lifecycle.ViewModel
-import com.dkarakaya.wallapoptest.model.ProductItemModel
 import com.dkarakaya.core.repository.ProductRepository
 import com.dkarakaya.wallapoptest.mapper.mapToProductItemModel
+import com.dkarakaya.wallapoptest.model.ProductItemModel
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -23,10 +23,13 @@ class ProductListViewModel @Inject constructor(
 
     // inputs
     private val sortingTypeInput = PublishSubject.create<SortingType>()
+    private val productIdInput = PublishSubject.create<String>()
+    private val productListLoadedInput = PublishSubject.create<Unit>()
 
     // outputs
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
+    private val productOutput = BehaviorSubject.create<ProductItemModel>()
 
     init {
         // distinct and sorted by distance product list stream
@@ -45,7 +48,7 @@ class ProductListViewModel @Inject constructor(
             .addTo(disposables)
 
         // TODO: fix
-        // sort list by sorting type
+        // sort list by sorting type stream
         sortingTypeInput
             .withLatestFrom(productListOutput) { type, productList ->
                 when (type) {
@@ -61,6 +64,18 @@ class ProductListViewModel @Inject constructor(
                 onError = Timber::e
             )
             .addTo(disposables)
+
+        // get product by given id stream
+        productListLoadedInput
+            .withLatestFrom(productIdInput, productListOutput) { _, id, products ->
+                products.first { it.id == id }
+            }
+            .subscribeBy(
+                onNext = productOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
     }
 
     private fun sortList(
@@ -105,12 +120,23 @@ class ProductListViewModel @Inject constructor(
         sortingTypeInput.onNext(type)
     }
 
+    fun setProductId(id: String) {
+        productIdInput.onNext(id)
+    }
+
+    fun productListLoaded() {
+        productListLoadedInput.onNext(Unit)
+    }
+
     /**
      * Outputs
      */
 
     fun getProductList(): Observable<List<ProductItemModel>> = productListOutput
+
     fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
+
+    fun getProduct(): Observable<ProductItemModel> = productOutput
 
     /**
      * Methods

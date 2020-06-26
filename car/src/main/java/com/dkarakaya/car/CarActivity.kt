@@ -2,6 +2,7 @@ package com.dkarakaya.car
 
 import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.car.details.CarDetailsFragment
+import com.dkarakaya.car.details.CarDetailsFragment.Companion.TAG_CARDETAILSFRAGMENT
 import com.dkarakaya.car.model.CarItemModel
 import com.dkarakaya.core.viewmodel.ViewModelFactory
 import dagger.android.support.DaggerAppCompatActivity
@@ -75,9 +76,5 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
     private fun showDetails(item: CarItemModel) {
         val newInstance = CarDetailsFragment.newInstance(item = item)
         newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
-    }
-
-    companion object {
-        const val TAG_CARDETAILSFRAGMENT = "CarDetailsFragment"
     }
 }

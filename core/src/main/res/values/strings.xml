@@ -8,4 +8,7 @@
     <string name="brand">BRAND</string>
     <string name="km">KM</string>
     <string name="distance_details">%s meters away</string>
+    <string name="share">SHARE</string>
+    <string name="deep_link">https://wallapoptest.app/%s</string>
+    <string name="share_url">Share URL</string>
 </resources>
