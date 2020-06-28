@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.car.details.CarDetailsFragment
 import com.dkarakaya.car.details.CarDetailsFragment.Companion.TAG_CARDETAILSFRAGMENT
 import com.dkarakaya.car.model.CarItemModel
+import com.dkarakaya.core.util.AdInitializer
 import com.dkarakaya.core.viewmodel.ViewModelFactory
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -26,12 +29,15 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
 
     private val disposables = CompositeDisposable()
 
+    @Inject
+    lateinit var adInitializer: AdInitializer
+    private var isShowingAd = false
+
     override fun onStart() {
         super.onStart()
-
-//        registerSubscriptions()
-
+        registerSubscriptions()
         initRecyclerView()
+        adInitializer.initInterstitialAd(this)
     }
 
     override fun onDestroy() {
@@ -40,11 +46,11 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
     }
 
     private fun registerSubscriptions() {
-        viewModel.getCarList()
+        viewModel.isShowingAd()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { it.toString() },
+                onNext = { isShowingAd = it },
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -57,8 +63,10 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
             adapter = controller.adapter
         }
         showCars(controller)
-        controller.carClickListener = { car ->
-            showDetails(car)
+        viewModel.itemClicked() // workaround for showing the ad on first third click
+        controller.carClickListener = { item ->
+            viewModel.itemClicked()
+            showDetails(item)
         }
     }
 
@@ -74,7 +82,30 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
     }
 
     private fun showDetails(item: CarItemModel) {
-        val newInstance = CarDetailsFragment.newInstance(item = item)
-        newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
+        if (isShowingAd) {
+            runAdEvents(item)
+            adInitializer.showInterstitialAd()
+        } else {
+            Timber.e("The interstitial ad wasn't loaded yet.")
+            val newInstance = CarDetailsFragment.newInstance(item = item)
+            newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
+        }
+    }
+
+    private fun runAdEvents(item: CarItemModel) {
+        adInitializer.interstitialAd.adListener = object : AdListener() {
+            // If user clicks on the ad and then presses the back, s/he is directed to DetailsFragment.
+            override fun onAdClicked() {
+                super.onAdOpened()
+                adInitializer.interstitialAd.adListener.onAdClosed()
+            }
+
+            // If user closes the ad, s/he is directed to DetailsFragment.
+            override fun onAdClosed() {
+                val newInstance = CarDetailsFragment.newInstance(item = item)
+                newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
+                adInitializer.interstitialAd.loadAd(AdRequest.Builder().build())
+            }
+        }
     }
 }

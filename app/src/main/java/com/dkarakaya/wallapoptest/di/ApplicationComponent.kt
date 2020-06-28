@@ -1,8 +1,12 @@
 package com.dkarakaya.wallapoptest.di
 
 import com.dkarakaya.car.di.CarModule
-import com.dkarakaya.wallapoptest.BaseApplication
+import com.dkarakaya.consumer_goods.di.ConsumerGoodsModule
+import com.dkarakaya.core.di.BuilderModule
 import com.dkarakaya.core.repository.di.RepositoryModule
+import com.dkarakaya.service.di.ServiceModule
+import com.dkarakaya.wallapoptest.BaseApplication
+import com.dkarakaya.wallapoptest.sorting.di.SortingFragmentModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -13,8 +17,12 @@ import javax.inject.Singleton
     modules = [
         AndroidInjectionModule::class,
         RepositoryModule::class,
+        BuilderModule::class,
+        SortingFragmentModule::class,
         MainModule::class,
-        CarModule::class
+        CarModule::class,
+        ConsumerGoodsModule::class,
+        ServiceModule::class
     ]
 )
 @Singleton

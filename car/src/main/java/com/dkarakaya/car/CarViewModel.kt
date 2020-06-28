@@ -5,6 +5,8 @@ import com.dkarakaya.car.mapper.mapToCarItemModel
 import com.dkarakaya.car.model.CarItemModel
 import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.repository.ProductRepository
+import com.dkarakaya.core.sorting.SortingType
+import com.dkarakaya.core.util.AdInitializer.Companion.REQUIRED_CLICK_COUNT_TO_SHOW_AD
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -22,11 +24,15 @@ class CarViewModel @Inject constructor(
 
     private val disposables = CompositeDisposable()
 
+    private val itemClickCountSubject = BehaviorSubject.createDefault(0)
+
     // inputs
     private val sortingTypeInput = PublishSubject.create<SortingType>()
+    private val itemClickedInput = BehaviorSubject.create<Unit>()
 
     // outputs
     private val carListOutput = BehaviorSubject.create<List<CarItemModel>>()
+    private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
 
     init {
         // distinct and sorted by distance car list stream
@@ -36,8 +42,8 @@ class CarViewModel @Inject constructor(
             .filter { it.kind == ProductKind.CAR }
             .distinct()
             .map { it.mapToCarItemModel() }
-            .toSortedList { car1, car2 ->
-                sortList(car1, car2, SortingType.DISTANCE_ASC)
+            .toSortedList { item1, item2 ->
+                sortList(item1, item2)
             }
             .subscribeBy(
                 onSuccess = carListOutput::onNext,
@@ -48,12 +54,7 @@ class CarViewModel @Inject constructor(
         // sort list by sorting type
         sortingTypeInput
             .withLatestFrom(carListOutput) { type, carList ->
-                when (type) {
-                    SortingType.DISTANCE_ASC -> carList.sortedBy { it.distanceInMeters }
-                    SortingType.DISTANCE_DESC -> carList.sortedByDescending { it.distanceInMeters }
-                    SortingType.PRICE_ASC -> carList.sortedBy { it.price }
-                    SortingType.PRICE_DESC -> carList.sortedByDescending { it.price }
-                }
+                sortListBy(type, carList)
             }
             .subscribeOn(Schedulers.computation())
             .subscribeBy(
@@ -62,71 +63,25 @@ class CarViewModel @Inject constructor(
             )
             .addTo(disposables)
 
-//        // car item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .filter { it.kind == "car" }
-//            .toList()
-//            .subscribeBy(
-//                onSuccess = carItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
-//
-//        // consumer goods item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .ofType<ConsumerGoods>()
-//            .toSortedList { consumerGoods1, consumerGoods2 ->
-//                consumerGoods1.distanceInMeters.compareTo(consumerGoods2.distanceInMeters)
-//            }
-//            .subscribeBy(
-//                onSuccess = consumerGoodsItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
-//
-//        // service item list stream
-//        productListOutput
-//            .flatMapIterable { it }
-//            .ofType<Service>()
-//            .toSortedList { service1, service2 ->
-//                service1.distanceInMeters.compareTo(service2.distanceInMeters)
-//            }
-//            .subscribeBy(
-//                onSuccess = serviceItemListOutput::onNext,
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
-    }
+        // item click count stream
+        itemClickedInput
+            .withLatestFrom(itemClickCountSubject) { _, count ->
+                increaseClickCount(count)
+            }
+            .subscribeBy(
+                onNext = itemClickCountSubject::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
 
-    private fun sortList(
-        product1: CarItemModel,
-        product2: CarItemModel,
-        sortingType: SortingType
-    ): Int {
-        when (sortingType) {
-            SortingType.DISTANCE_ASC -> {
-                val distance1 = product1.distanceInMeters ?: Int.MAX_VALUE
-                val distance2 = product2.distanceInMeters ?: Int.MAX_VALUE
-                return distance1.compareTo(distance2)
-            }
-            SortingType.DISTANCE_DESC -> {
-                val distance1 = product1.distanceInMeters ?: Int.MAX_VALUE
-                val distance2 = product2.distanceInMeters ?: Int.MAX_VALUE
-                return distance2.compareTo(distance1)
-            }
-            SortingType.PRICE_ASC -> {
-                val distance1 = product1.price
-                val distance2 = product2.price
-                return distance1.compareTo(distance2)
-            }
-            SortingType.PRICE_DESC -> {
-                val distance1 = product1.price
-                val distance2 = product2.price
-                return distance2.compareTo(distance1)
-            }
-        }
+        // is showing ad stream
+        itemClickCountSubject
+            .map { isThirdClick(it) }
+            .subscribeBy(
+                onNext = isShowingAdOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
     }
 
     override fun onCleared() {
@@ -142,20 +97,47 @@ class CarViewModel @Inject constructor(
         sortingTypeInput.onNext(type)
     }
 
+    fun itemClicked() {
+        itemClickedInput.onNext(Unit)
+    }
+
     /**
      * Outputs
      */
 
     fun getCarList(): Observable<List<CarItemModel>> = carListOutput
 
+    fun isShowingAd(): Observable<Boolean> = isShowingAdOutput
+
     /**
      * Methods
      */
 
-    enum class SortingType {
-        DISTANCE_ASC,
-        DISTANCE_DESC,
-        PRICE_ASC,
-        PRICE_DESC
+    private fun sortList(
+        product1: CarItemModel,
+        product2: CarItemModel
+    ): Int {
+        val distance1 = product1.distanceInMeters ?: Int.MAX_VALUE
+        val distance2 = product2.distanceInMeters ?: Int.MAX_VALUE
+        return distance1.compareTo(distance2)
+    }
+
+    private fun sortListBy(
+        type: SortingType?,
+        carList: List<CarItemModel>
+    ): List<CarItemModel> {
+        return when (type) {
+            SortingType.DISTANCE_ASC -> carList.sortedBy { it.distanceInMeters }
+            SortingType.DISTANCE_DESC -> carList.sortedByDescending { it.distanceInMeters }
+            SortingType.PRICE_ASC -> carList.sortedBy { it.price }
+            SortingType.PRICE_DESC -> carList.sortedByDescending { it.price }
+            else -> carList.sortedByDescending { it.distanceInMeters }
+        }
+    }
+
+    private fun increaseClickCount(count: Int) = count + 1
+
+    private fun isThirdClick(count: Int): Boolean {
+        return count != 0 && count % REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
     }
 }

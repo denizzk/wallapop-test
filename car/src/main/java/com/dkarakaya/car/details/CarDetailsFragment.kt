@@ -37,7 +37,7 @@ class CarDetailsFragment : BottomSheetDialogFragment() {
             .load(item.image)
             .into(imageItem)
 
-        textAmount.text = item.price
+        textHeader.text = item.price
         textName.text = item.name
         textDistance.text = getString(R.string.distance_details, item.distanceInMeters.toString())
         textBrand.text = item.brand
@@ -71,4 +71,6 @@ class CarDetailsFragment : BottomSheetDialogFragment() {
 
         }
     }
+
+    var companion = Companion
 }

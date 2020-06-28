@@ -3,22 +3,25 @@ package com.dkarakaya.wallapoptest
 import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.model.ProductRemoteModel
 import com.dkarakaya.core.repository.ProductRepository
+import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.await
 import com.dkarakaya.test_utils.ProductFactory.dummyCar
 import com.dkarakaya.test_utils.ProductFactory.dummyConsumerGoods
 import com.dkarakaya.test_utils.ProductFactory.dummyProduct
 import com.dkarakaya.test_utils.ProductFactory.dummyService
-import com.dkarakaya.wallapoptest.ProductListViewModel.SortingType
 import com.dkarakaya.wallapoptest.model.ProductItem
 import com.dkarakaya.wallapoptest.model.ProductItemModel
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Observable
+import io.reactivex.schedulers.TestScheduler
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 class ProductListViewModelTest {
 
     private val productRepository = mock<ProductRepository>()
+    private val testScheduler = TestScheduler()
     private val viewModel by lazy {
         ProductListViewModel(
             productRepository = productRepository
@@ -118,6 +121,35 @@ class ProductListViewModelTest {
     }
 
     @Test
+    fun `GIVEN product list WHEN item click twice third THEN don't show ad`() {
+        givenProductList(listOf(dummyProduct()))
+
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        val isShowingAd = viewModel.isShowingAd().test()
+
+        isShowingAd
+            .assertValue(false)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN item click thrice third THEN don't show ad`() {
+        givenProductList(listOf(dummyProduct()))
+
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        val isShowingAd = viewModel.isShowingAd().test()
+
+        isShowingAd
+            .assertValue(true)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
     fun `GIVEN product list WHEN sort product list by descending distance THEN return the sorted product item list`() {
         val car = dummyCar(id = "123", distanceInMeters = 100)
         val service = dummyService(id = "345", distanceInMeters = 200)
@@ -129,9 +161,10 @@ class ProductListViewModelTest {
                 dummyProduct(kind = ProductKind.CONSUMER_GOODS, item = consumerGoods)
             )
         )
-
+        val getProductList = viewModel.getProductList().test().await(3, 50000)
+        testScheduler.advanceTimeBy(20, TimeUnit.SECONDS)
         viewModel.setSortingType(SortingType.DISTANCE_DESC)
-        val getProductList = viewModel.getProductList().test().await(3)
+        viewModel.setSorting()
 
         getProductList
             .assertValue(

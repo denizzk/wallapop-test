@@ -27,7 +27,7 @@ abstract class ProductEpoxyModel : EpoxyModelWithHolder<ProductEpoxyModel.ItemHo
     lateinit var onClickListener: View.OnClickListener
 
     override fun getDefaultLayout(): Int {
-        return R.layout.item_service
+        return R.layout.item_product
     }
 
     override fun bind(holder: ItemHolder) {

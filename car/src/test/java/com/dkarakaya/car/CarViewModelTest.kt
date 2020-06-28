@@ -90,6 +90,48 @@ class CarViewModelTest {
             .assertNotComplete()
     }
 
+    @Test
+    fun `GIVEN product list WHEN item click once third THEN don't show ad`() {
+        givenProductList(listOf(dummyProduct()))
+
+        viewModel.itemClicked()
+        val isShowingAd = viewModel.isShowingAd().test()
+
+        isShowingAd
+            .assertValue(false)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN item click twice third THEN don't show ad`() {
+        givenProductList(listOf(dummyProduct()))
+
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        val isShowingAd = viewModel.isShowingAd().test()
+
+        isShowingAd
+            .assertValue(false)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN item click thrice third THEN don't show ad`() {
+        givenProductList(listOf(dummyProduct()))
+
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        viewModel.itemClicked()
+        val isShowingAd = viewModel.isShowingAd().test()
+
+        isShowingAd
+            .assertValue(true)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
     // TODO: sorting tests
 
     private fun givenProductList(productList: List<ProductRemoteModel>) {
@@ -100,12 +142,12 @@ class CarViewModelTest {
         id: String = "123",
         image: String = "https://test.jpg",
         price: String = "1,000.00 €",
-        name: String = "duis",
+        name: String = "Duis",
         description: String = "Officia excepteur exercitation laborum tempor anim.",
         distanceInMeters: Int = 100,
-        motor: String = "gasoline",
-        gearbox: String = "manual",
-        brand: String = "irure",
+        motor: String = "Gasoline",
+        gearbox: String = "Manual",
+        brand: String = "Irure",
         km: Int = 1234
     ): CarItemModel {
         return CarItemModel(

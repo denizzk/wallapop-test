@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="exitUntilCollapsed|scroll">
+
+            <ImageView
+                android:id="@+id/imageItem"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:contentDescription="@null"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_launcher_background" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/small_cell_height"
+            android:paddingHorizontal="@dimen/spacing_L"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageItem">
+
+            <TextView
+                android:id="@+id/textHeader"
+                style="@style/TextH1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="196,000.00 €" />
+
+            <TextView
+                android:id="@+id/textName"
+                style="@style/TextH2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_S"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textHeader"
+                tools:text="Volkswagen AG" />
+
+            <TextView
+                android:id="@+id/textDistance"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/spacing_XXXL"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textName"
+                tools:text="500 meters away" />
+
+            <TextView
+                android:id="@+id/titleCategory"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/category"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/titleColor"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textDistance"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textCategory"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintEnd_toEndOf="@id/titleCategory"
+                app:layout_constraintStart_toStartOf="@id/titleCategory"
+                app:layout_constraintTop_toBottomOf="@id/titleCategory"
+                tools:text="Electronics" />
+
+            <TextView
+                android:id="@+id/titleColor"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingHorizontal="@dimen/spacing_XS"
+                android:text="@string/color"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/titleCategory"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/titleCategory"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textColor"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="@dimen/spacing_M"
+                app:layout_constraintBottom_toBottomOf="@id/textCategory"
+                app:layout_constraintEnd_toEndOf="@id/titleColor"
+                app:layout_constraintStart_toStartOf="@id/titleColor"
+                app:layout_constraintTop_toBottomOf="@id/titleColor"
+                tools:text="Black" />
+
+            <TextView
+                android:id="@+id/textDescription"
+                style="@style/TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/spacing_XXXL"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textCategory"
+                tools:text="Volkswagen AG" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/buttonShare"
+        style="@style/UiButton.Share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="0dp"
+        android:drawableEnd="@drawable/ic_share"
+        android:text="@string/share" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -45,7 +45,7 @@
             app:layout_constraintTop_toBottomOf="@id/imageItem">
 
             <TextView
-                android:id="@+id/textAmount"
+                android:id="@+id/textHeader"
                 style="@style/TextH1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
                 android:paddingVertical="@dimen/spacing_S"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textAmount"
+                app:layout_constraintTop_toBottomOf="@id/textHeader"
                 tools:text="Volkswagen AG" />
 
             <TextView
@@ -238,6 +238,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableEnd="@drawable/ic_share"
+        android:layout_margin="0dp"
         android:text="@string/share"
         style="@style/UiButton.Share"
         android:layout_gravity="bottom|center"/>

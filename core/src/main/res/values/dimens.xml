@@ -30,7 +30,8 @@
     <item name="text_letter_spacing" format="float" type="dimen">0.08</item>
 
     <!--  Common View Dimens  -->
-    <dimen name="default_border_radius">10dp</dimen>
+    <dimen name="large_border_radius">50dp</dimen>
+    <dimen name="default_border_radius">20dp</dimen>
     <dimen name="small_border_radius">5dp</dimen>
     <dimen name="default_divider_height">2dp</dimen>
     <dimen name="toolbar_shadow_height">2dp</dimen>

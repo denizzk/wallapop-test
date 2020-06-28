@@ -12,15 +12,15 @@ class CarController : EpoxyController() {
             requestModelBuild()
         }
 
-    var carClickListener: (productItem: CarItemModel) -> Unit = { }
+    var carClickListener: (item: CarItemModel) -> Unit = { }
 
     override fun buildModels() {
-        cars.forEachIndexed { id, car ->
+        cars.forEachIndexed { id, item ->
             car {
                 id(id)
-                item(car)
+                item(item)
                 onClickListener(View.OnClickListener {
-                    carClickListener(car)
+                    carClickListener(item)
                 })
             }
         }
