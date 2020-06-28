@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import com.dkarakaya.core.repository.ProductRepository
 import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer
+import com.dkarakaya.core.util.RecyclerViewPaginator.Companion.PAGE_SIZE
 import com.dkarakaya.wallapoptest.mapper.mapToProductItemModel
 import com.dkarakaya.wallapoptest.model.ProductItemModel
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
@@ -16,6 +18,7 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.min
 
 class ProductListViewModel @Inject constructor(
     productRepository: ProductRepository
@@ -23,10 +26,11 @@ class ProductListViewModel @Inject constructor(
 
     private val disposables = CompositeDisposable()
 
+    private val sortingTypeSubject = BehaviorSubject.create<SortingType>()
     private val itemClickCountSubject = BehaviorSubject.createDefault(0)
 
     // inputs
-    private val sortingTypeSubject = BehaviorSubject.create<SortingType>()
+    private val pageNumberInput = BehaviorSubject.createDefault<Int>(0)
     private val sortingInput = PublishSubject.create<Unit>()
     private val productIdInput = PublishSubject.create<String>()
     private val productListLoadedInput = PublishSubject.create<Unit>()
@@ -34,6 +38,8 @@ class ProductListViewModel @Inject constructor(
 
     // outputs
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
+    private val pagedListOutput = BehaviorSubject.create<List<ProductItemModel>>()
+    private val isLastPageOutput = PublishSubject.create<Boolean>()
     private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val productOutput = BehaviorSubject.create<ProductItemModel>()
     private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
@@ -50,6 +56,30 @@ class ProductListViewModel @Inject constructor(
             }
             .subscribeBy(
                 onSuccess = productListOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        // paging stream
+        Observables
+            .combineLatest(pageNumberInput, productListOutput) { pageNumber, productList ->
+                val fromIndex = min(pageNumber * PAGE_SIZE, productList.size)
+                val toIndex = min(fromIndex + PAGE_SIZE, productList.size)
+                productList.subList(fromIndex, toIndex)
+            }
+            .subscribeBy(
+                onNext = pagedListOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        // is last page stream
+        pagedListOutput
+            .withLatestFrom(productListOutput) { pagedList, productList ->
+                pagedList.last() == productList.last()
+            }
+            .subscribeBy(
+                onNext = isLastPageOutput::onNext,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -109,6 +139,10 @@ class ProductListViewModel @Inject constructor(
      * Inputs
      */
 
+    fun setPageNumber(pageNumber: Int) {
+        pageNumberInput.onNext(pageNumber)
+    }
+
     fun setSortingType(type: SortingType) {
         sortingTypeSubject.onNext(type)
     }
@@ -134,6 +168,10 @@ class ProductListViewModel @Inject constructor(
      */
 
     fun getProductList(): Observable<List<ProductItemModel>> = productListOutput
+
+    fun getPagedList(): Observable<List<ProductItemModel>> = pagedListOutput
+
+    fun isLastPage(): Observable<Boolean> = isLastPageOutput
 
     fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
 

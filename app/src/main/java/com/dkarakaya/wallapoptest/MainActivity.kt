@@ -10,6 +10,7 @@ import com.dkarakaya.consumer_goods.details.ConsumerGoodsDetailsFragment
 import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer
+import com.dkarakaya.core.util.RecyclerViewPaginator
 import com.dkarakaya.core.viewmodel.ViewModelFactory
 import com.dkarakaya.service.ServiceActivity
 import com.dkarakaya.service.details.ServiceDetailsFragment
@@ -33,7 +34,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import javax.inject.Inject
 
+
 class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
+
+    private var isLastPageNumber: Boolean = false
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -52,6 +56,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
 
     override fun onStart() {
         super.onStart()
+        Timber.plant(Timber.DebugTree())
         registerSubscriptions()
         registerListeners()
         initRecyclerView()
@@ -120,39 +125,59 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         recyclerView.apply {
             setHasFixedSize(true)
             adapter = controller.adapter
+            addOnScrollListener(object : RecyclerViewPaginator(recyclerView) {
+                override val isLastPage: Boolean
+                    get() = isLastPageNumber
+
+                override fun loadPage(pageNumber: Int) {
+                    viewModel.setPageNumber(pageNumber)
+                }
+            })
         }
         showProducts(controller)
         viewModel.itemClicked() // workaround for showing the ad on first third click
-        controller.productClickListener = { product ->
-            viewModel.itemClicked()
-            showDetails(product)
-        }
+        controller.productClickListener =
+            { product ->
+                viewModel.itemClicked()
+                showDetails(product)
+            }
     }
 
     private fun showProducts(controller: ProductController) {
-        viewModel.getProductList()
+        viewModel.getPagedList()
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = {
-                    controller.products = it
+                    controller.products += it
                     viewModel.productListLoaded()
                 },
                 onError = Timber::e
             )
             .addTo(disposables)
 
-        viewModel.getSortedProductList()
+        viewModel.isLastPage()
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = {
-                    controller.products = it
-                    viewModel.productListLoaded()
+                    isLastPageNumber = it
                 },
                 onError = Timber::e
             )
             .addTo(disposables)
+
+//        viewModel.getSortedProductList()
+//            .observeOn(Schedulers.io())
+//            .subscribeOn(AndroidSchedulers.mainThread())
+//            .subscribeBy(
+//                onNext = {
+//                    controller.products = it
+//                    viewModel.productListLoaded()
+//                },
+//                onError = Timber::e
+//            )
+//            .addTo(disposables)
     }
 
     private fun showDetails(item: ProductItemModel) {
@@ -160,7 +185,6 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             runAdEvents(item)
             adInitializer.showInterstitialAd()
         } else {
-            Timber.e("The interstitial ad wasn't loaded yet.")
             val newInstance = itemDetailsFragment(item)
             newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
         }

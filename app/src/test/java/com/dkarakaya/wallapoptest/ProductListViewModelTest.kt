@@ -14,14 +14,11 @@ import com.dkarakaya.wallapoptest.model.ProductItemModel
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Observable
-import io.reactivex.schedulers.TestScheduler
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 class ProductListViewModelTest {
 
     private val productRepository = mock<ProductRepository>()
-    private val testScheduler = TestScheduler()
     private val viewModel by lazy {
         ProductListViewModel(
             productRepository = productRepository
@@ -121,6 +118,177 @@ class ProductListViewModelTest {
     }
 
     @Test
+    fun `GIVEN product list WHEN get first page of list THEN return the first page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100")),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105")),
+                dummyProduct(item = dummyConsumerGoods(id = "106")),
+                dummyProduct(item = dummyConsumerGoods(id = "107")),
+                dummyProduct(item = dummyConsumerGoods(id = "108")),
+                dummyProduct(item = dummyConsumerGoods(id = "109")),
+                dummyProduct(item = dummyConsumerGoods(id = "110")),
+                dummyProduct(item = dummyConsumerGoods(id = "111"))
+            )
+        )
+
+        viewModel.setPageNumber(0)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyProductItem(id = "100"),
+                    dummyProductItem(id = "101"),
+                    dummyProductItem(id = "102"),
+                    dummyProductItem(id = "103"),
+                    dummyProductItem(id = "104"),
+                    dummyProductItem(id = "105"),
+                    dummyProductItem(id = "106"),
+                    dummyProductItem(id = "107"),
+                    dummyProductItem(id = "108"),
+                    dummyProductItem(id = "109")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get second page of list THEN return the first page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100")),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105")),
+                dummyProduct(item = dummyConsumerGoods(id = "106")),
+                dummyProduct(item = dummyConsumerGoods(id = "107")),
+                dummyProduct(item = dummyConsumerGoods(id = "108")),
+                dummyProduct(item = dummyConsumerGoods(id = "109")),
+                dummyProduct(item = dummyConsumerGoods(id = "110")),
+                dummyProduct(item = dummyConsumerGoods(id = "111")),
+                dummyProduct(item = dummyConsumerGoods(id = "112")),
+                dummyProduct(item = dummyConsumerGoods(id = "113")),
+                dummyProduct(item = dummyConsumerGoods(id = "114")),
+                dummyProduct(item = dummyConsumerGoods(id = "115")),
+                dummyProduct(item = dummyConsumerGoods(id = "116")),
+                dummyProduct(item = dummyConsumerGoods(id = "117")),
+                dummyProduct(item = dummyConsumerGoods(id = "118")),
+                dummyProduct(item = dummyConsumerGoods(id = "119"))
+            )
+        )
+
+        viewModel.setPageNumber(1)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyProductItem(id = "110"),
+                    dummyProductItem(id = "111"),
+                    dummyProductItem(id = "112"),
+                    dummyProductItem(id = "113"),
+                    dummyProductItem(id = "114"),
+                    dummyProductItem(id = "115"),
+                    dummyProductItem(id = "116"),
+                    dummyProductItem(id = "117"),
+                    dummyProductItem(id = "118"),
+                    dummyProductItem(id = "119")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get last page of list THEN return the last page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100")),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105"))
+            )
+        )
+
+        viewModel.setPageNumber(0)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyProductItem(id = "100"),
+                    dummyProductItem(id = "101"),
+                    dummyProductItem(id = "102"),
+                    dummyProductItem(id = "103"),
+                    dummyProductItem(id = "104"),
+                    dummyProductItem(id = "105")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get not last page of list THEN return false`() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100")),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105")),
+                dummyProduct(item = dummyConsumerGoods(id = "106")),
+                dummyProduct(item = dummyConsumerGoods(id = "107")),
+                dummyProduct(item = dummyConsumerGoods(id = "108")),
+                dummyProduct(item = dummyConsumerGoods(id = "109")),
+                dummyProduct(item = dummyConsumerGoods(id = "110"))
+            )
+        )
+
+        val getProductList = viewModel.isLastPage().test().await(1)
+        viewModel.setPageNumber(0)
+
+        getProductList
+            .assertValue(false)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get last page of list THEN return true`() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100")),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105"))
+            )
+        )
+
+        val getProductList = viewModel.isLastPage().test().await(1)
+        viewModel.setPageNumber(0)
+
+        getProductList
+            .assertValue(true)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+
+    @Test
     fun `GIVEN product list WHEN item click twice third THEN don't show ad`() {
         givenProductList(listOf(dummyProduct()))
 
@@ -161,8 +329,7 @@ class ProductListViewModelTest {
                 dummyProduct(kind = ProductKind.CONSUMER_GOODS, item = consumerGoods)
             )
         )
-        val getProductList = viewModel.getProductList().test().await(3, 50000)
-        testScheduler.advanceTimeBy(20, TimeUnit.SECONDS)
+        val getProductList = viewModel.getProductList().test().await(3)
         viewModel.setSortingType(SortingType.DISTANCE_DESC)
         viewModel.setSorting()
 
