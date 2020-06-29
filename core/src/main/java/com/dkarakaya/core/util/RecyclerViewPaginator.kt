@@ -7,12 +7,14 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.OnScrollListener() {
 
     /*
-     * Variable to keep track of the current page
+     * Variables to keep track of the current page
      * */
     private var currentPage: Int = 0
     private var visibleItemCount = 0
     private var totalItemCount = 0
     private var firstVisibleItemPosition = 0
+    private var findFirstVisibleItemPosition = 0
+    private var findLastVisibleItemPosition = 0
 
     /*
      * This is a hack to ensure that the app is notified
@@ -51,6 +53,7 @@ abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.
     init {
         recyclerView.addOnScrollListener(this)
         this.layoutManager = recyclerView.layoutManager
+        reset()
     }
 
     /*
@@ -59,18 +62,23 @@ abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.
      * if we have a filter option in the app,
      * we might need to refresh the whole data set
      * */
-    fun reset() {
+    private fun reset() {
         currentPage = 0
     }
+
+    private val gridLayoutManager = layoutManager as GridLayoutManager
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         //check for scroll down
         if (dy > 0) {
+            findFirstVisibleItemPosition = gridLayoutManager.findFirstVisibleItemPosition()
+            findLastVisibleItemPosition = gridLayoutManager.findLastCompletelyVisibleItemPosition()
+            distanceRange(findFirstVisibleItemPosition to findLastVisibleItemPosition)
+
             if (isLastPage) return
-            visibleItemCount = layoutManager!!.childCount
-            totalItemCount = layoutManager.itemCount
-            firstVisibleItemPosition =
-                (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+            visibleItemCount = gridLayoutManager.childCount
+            totalItemCount = gridLayoutManager.itemCount
+            firstVisibleItemPosition = gridLayoutManager.findLastVisibleItemPosition()
             if (visibleItemCount + firstVisibleItemPosition >= totalItemCount) {
                 if (!loading) {
                     currentPage++
@@ -81,10 +89,17 @@ abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.
                 loading = false
             }
         }
+        if (dy < 0) {
+            findFirstVisibleItemPosition = gridLayoutManager.findFirstVisibleItemPosition()
+            findLastVisibleItemPosition = gridLayoutManager.findLastCompletelyVisibleItemPosition()
+            distanceRange(findFirstVisibleItemPosition to findLastVisibleItemPosition)
+        }
     }
 
 
     abstract fun loadPage(pageNumber: Int)
+
+    abstract fun distanceRange(range: Pair<Int, Int>)
 
     companion object {
         /*

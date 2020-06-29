@@ -31,6 +31,7 @@ class ProductListViewModel @Inject constructor(
 
     // inputs
     private val pageNumberInput = BehaviorSubject.createDefault<Int>(0)
+    private val distanceRangeInput = BehaviorSubject.createDefault<Pair<Int, Int>>(0 to 5)
     private val sortingInput = PublishSubject.create<Unit>()
     private val productIdInput = PublishSubject.create<String>()
     private val productListLoadedInput = PublishSubject.create<Unit>()
@@ -40,6 +41,7 @@ class ProductListViewModel @Inject constructor(
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val pagedListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val isLastPageOutput = PublishSubject.create<Boolean>()
+    private val distanceRangeOutput = PublishSubject.create<Pair<Int, Int>>()
     private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val productOutput = BehaviorSubject.create<ProductItemModel>()
     private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
@@ -84,15 +86,16 @@ class ProductListViewModel @Inject constructor(
             )
             .addTo(disposables)
 
-        // TODO: fix
-        // sort list by sorting type stream
-        sortingTypeSubject
-            .withLatestFrom(productListOutput)
-            .doOnNext { sortProductList(it.first, it.second) }
-            .map { it.second }
-            .doOnNext(productListOutput::onNext)
+        // distance range stream
+        Observables.combineLatest(distanceRangeInput, productListOutput) { range, productList ->
+            val firstItemDistance = productList[range.first].distanceInMeters ?: 0
+            val lastItemDistance = productList[range.second].distanceInMeters ?: 0
+            Timber.e("$firstItemDistance to $lastItemDistance")
+            firstItemDistance to lastItemDistance
+        }
+            .distinctUntilChanged()
             .subscribeBy(
-                onNext = productListOutput::onNext,
+                onNext = distanceRangeOutput::onNext,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -128,6 +131,18 @@ class ProductListViewModel @Inject constructor(
             )
             .addTo(disposables)
 
+        // TODO: fix
+        // sort list by sorting type stream
+        sortingTypeSubject
+            .withLatestFrom(productListOutput)
+            .doOnNext { sortProductList(it.first, it.second) }
+            .map { it.second }
+            .doOnNext(productListOutput::onNext)
+            .subscribeBy(
+                onNext = productListOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
     }
 
     override fun onCleared() {
@@ -143,12 +158,8 @@ class ProductListViewModel @Inject constructor(
         pageNumberInput.onNext(pageNumber)
     }
 
-    fun setSortingType(type: SortingType) {
-        sortingTypeSubject.onNext(type)
-    }
-
-    fun setSorting() {
-        sortingInput.onNext(Unit)
+    fun setFirstLastVisibleItems(range: Pair<Int, Int>) {
+        distanceRangeInput.onNext(range)
     }
 
     fun setProductId(id: String) {
@@ -163,6 +174,14 @@ class ProductListViewModel @Inject constructor(
         itemClickedInput.onNext(Unit)
     }
 
+    fun setSortingType(type: SortingType) {
+        sortingTypeSubject.onNext(type)
+    }
+
+    fun setSorting() {
+        sortingInput.onNext(Unit)
+    }
+
     /**
      * Outputs
      */
@@ -173,13 +192,16 @@ class ProductListViewModel @Inject constructor(
 
     fun isLastPage(): Observable<Boolean> = isLastPageOutput
 
-    fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
+    fun getDistanceRange(): Observable<Pair<Int, Int>> = distanceRangeOutput
 
     fun getProduct(): Observable<ProductItemModel> = productOutput
 
+    fun isShowingAd(): Observable<Boolean> = isShowingAdOutput
+
+    fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
+
     fun getSortingType(): Observable<SortingType> = sortingTypeSubject
 
-    fun isShowingAd(): Observable<Boolean> = isShowingAdOutput
 
     /**
      * Methods

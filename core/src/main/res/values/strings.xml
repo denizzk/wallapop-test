@@ -20,6 +20,5 @@
     <string name="category">CATEGORY</string>
     <string name="minimum_age">MINIMUM AGE</string>
     <string name="close_day">CLOSE DAY</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="distance_range_info">Displaying items between %1d and %2d meters from you</string>
 </resources>

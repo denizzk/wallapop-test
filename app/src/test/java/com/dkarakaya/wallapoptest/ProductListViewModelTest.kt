@@ -287,6 +287,28 @@ class ProductListViewModelTest {
             .assertNotComplete()
     }
 
+    @Test
+    fun `GIVEN product list WHEN get distance range THEN return the distances of given first and last visible item `() {
+        givenProductList(
+            listOf(
+                dummyProduct(item = dummyConsumerGoods(id = "100", distanceInMeters = 100)),
+                dummyProduct(item = dummyConsumerGoods(id = "101")),
+                dummyProduct(item = dummyConsumerGoods(id = "102")),
+                dummyProduct(item = dummyConsumerGoods(id = "103")),
+                dummyProduct(item = dummyConsumerGoods(id = "104")),
+                dummyProduct(item = dummyConsumerGoods(id = "105", distanceInMeters = 200))
+            )
+        )
+
+        val getProductList = viewModel.getDistanceRange().test().await(1)
+        viewModel.setFirstLastVisibleItems(0 to 5)
+
+        getProductList
+            .assertValue(100 to 200)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
 
     @Test
     fun `GIVEN product list WHEN item click twice third THEN don't show ad`() {

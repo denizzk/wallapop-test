@@ -1,6 +1,8 @@
 package com.dkarakaya.wallapoptest
 
 import android.content.Intent
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.car.CarActivity
 import com.dkarakaya.car.details.CarDetailsFragment
@@ -37,8 +39,6 @@ import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
 
-    private var isLastPageNumber: Boolean = false
-
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
@@ -47,6 +47,10 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
     }
 
     private val disposables = CompositeDisposable()
+
+    private var isLastPageNumber: Boolean = false
+
+    private lateinit var textDistanceRange: TextView
 
     @Inject
     lateinit var adInitializer: AdInitializer
@@ -59,7 +63,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         Timber.plant(Timber.DebugTree())
         registerSubscriptions()
         registerListeners()
-        initRecyclerView()
+        render()
         openDeepLink()
         adInitializer.initInterstitialAd(this)
     }
@@ -70,6 +74,19 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
     }
 
     private fun registerSubscriptions() {
+        viewModel.getDistanceRange()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = {
+                    layout_distance.isVisible = true
+                    textDistanceRange.text =
+                        getString(R.string.distance_range_info, it.first, it.second)
+                },
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
         viewModel.getProduct()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -120,6 +137,11 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    private fun render() {
+        textDistanceRange = findViewById(R.id.textDistanceRange)
+        initRecyclerView()
+    }
+
     private fun initRecyclerView() {
         val controller = ProductController()
         recyclerView.apply {
@@ -131,6 +153,10 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
 
                 override fun loadPage(pageNumber: Int) {
                     viewModel.setPageNumber(pageNumber)
+                }
+
+                override fun distanceRange(range: Pair<Int, Int>) {
+                    viewModel.setFirstLastVisibleItems(range)
                 }
             })
         }

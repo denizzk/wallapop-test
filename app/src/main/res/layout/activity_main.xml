@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/spacing_XS"
     tools:context=".MainActivity">
 
     <Button
@@ -13,7 +14,7 @@
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_car"
         android:text="@string/car"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toTopOf="@id/groupCategory"
         app:layout_constraintEnd_toStartOf="@id/buttonConsumerGoods"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +26,7 @@
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_consumer_goods"
         android:text="@string/consumer_goods"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toTopOf="@id/groupCategory"
         app:layout_constraintEnd_toStartOf="@id/buttonService"
         app:layout_constraintStart_toEndOf="@id/buttonCar"
         app:layout_constraintTop_toTopOf="parent" />
@@ -37,21 +38,43 @@
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_service"
         android:text="@string/service"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toTopOf="@id/groupCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/buttonConsumerGoods"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="buttonCar, buttonConsumerGoods, buttonService"
+        app:layout_constraintEnd_toEndOf="@id/buttonService"
+        app:layout_constraintStart_toStartOf="@id/buttonCar"
+        app:layout_constraintTop_toBottomOf="@id/layout_distance" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonCar"
+        android:layout_marginTop="@dimen/spacing_XXL"
+        android:paddingHorizontal="@dimen/spacing_XS"
+        app:layout_constraintEnd_toEndOf="@id/groupCategory"
+        app:layout_constraintStart_toStartOf="@id/groupCategory"
+        app:layout_constraintTop_toBottomOf="@id/layout_distance"
         app:spanCount="2" />
+
+    <include
+        android:id="@+id/layout_distance"
+        layout="@layout/layout_distance_range"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/buttonService"
+        app:layout_constraintStart_toStartOf="@id/buttonCar"
+        app:layout_constraintTop_toBottomOf="@id/groupCategory"
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/buttonSorting"

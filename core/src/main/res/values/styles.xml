@@ -43,8 +43,8 @@
         <item name="fontFamily">@font/regular</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/text_size_M</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">@dimen/text_size_XS</item>
+        <item name="android:textColor">@color/bluishWhite</item>
         <item name="android:letterSpacing">@dimen/text_letter_spacing</item>
     </style>
 
@@ -91,10 +91,9 @@
         <item name="android:minWidth">110dp</item>
         <item name="android:maxWidth">110dp</item>
         <item name="android:maxHeight">100dp</item>
-        <item name="android:background">@drawable/background_button_oval</item>
+        <item name="android:background">@drawable/background_button_top_rounded</item>
         <item name="android:padding">@dimen/spacing_M</item>
         <item name="android:layout_margin">@dimen/spacing_M</item>
-        <item name="cornerRadius">@dimen/small_border_radius</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textAlignment">center</item>
     </style>
