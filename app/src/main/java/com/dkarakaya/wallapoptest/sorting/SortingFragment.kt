@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.core.sorting.*
 import com.dkarakaya.core.viewmodel.ViewModelFactory
-import com.dkarakaya.wallapoptest.ProductListViewModel
+import com.dkarakaya.wallapoptest.ProductViewModel
 import dagger.android.support.DaggerDialogFragment
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 import javax.inject.Inject
 
 class SortingFragment : DaggerDialogFragment() {
@@ -17,8 +18,8 @@ class SortingFragment : DaggerDialogFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
-    private val viewModel: ProductListViewModel by lazy {
-        ViewModelProvider(this, viewModelFactory).get(ProductListViewModel::class.java)
+    private val viewModel: ProductViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
     }
 
     private var sortingType: SortingType? = null
@@ -65,6 +66,7 @@ class SortingFragment : DaggerDialogFragment() {
     }
 
     private fun sortProducts(sortingType: SortingType) {
+        Timber.e("$sortingType")
         viewModel.setSortingType(sortingType)
         dismiss()
     }

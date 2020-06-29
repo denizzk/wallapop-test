@@ -20,5 +20,5 @@
     <string name="category">CATEGORY</string>
     <string name="minimum_age">MINIMUM AGE</string>
     <string name="close_day">CLOSE DAY</string>
-    <string name="distance_range_info">Displaying items between %1d and %2d meters from you</string>
+    <string name="distance_range_info">Displaying items %1$s to %2$s meters from you</string>
 </resources>

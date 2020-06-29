@@ -91,6 +91,204 @@ class CarViewModelTest {
     }
 
     @Test
+    fun `GIVEN product list WHEN get first page of list THEN return the first page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "100")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "105")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "106")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "107")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "108")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "109")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "110")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "111"))
+            )
+        )
+
+        viewModel.setPageNumber(0)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyCarItem(id = "100"),
+                    dummyCarItem(id = "101"),
+                    dummyCarItem(id = "102"),
+                    dummyCarItem(id = "103"),
+                    dummyCarItem(id = "104"),
+                    dummyCarItem(id = "105"),
+                    dummyCarItem(id = "106"),
+                    dummyCarItem(id = "107"),
+                    dummyCarItem(id = "108"),
+                    dummyCarItem(id = "109")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get second page of list THEN return the second page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "100")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "105")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "106")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "107")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "108")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "109")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "110")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "111")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "112")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "113")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "114")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "115")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "116")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "117")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "118")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "119"))
+            )
+        )
+
+        viewModel.setPageNumber(1)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyCarItem(id = "110"),
+                    dummyCarItem(id = "111"),
+                    dummyCarItem(id = "112"),
+                    dummyCarItem(id = "113"),
+                    dummyCarItem(id = "114"),
+                    dummyCarItem(id = "115"),
+                    dummyCarItem(id = "116"),
+                    dummyCarItem(id = "117"),
+                    dummyCarItem(id = "118"),
+                    dummyCarItem(id = "119")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get last page of list THEN return the last page of item list`() {
+        givenProductList(
+            listOf(
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "100")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "105"))
+            )
+        )
+
+        viewModel.setPageNumber(0)
+        val getProductList = viewModel.getPagedList().test().await(2)
+
+        getProductList
+            .assertValue(
+                mutableListOf(
+                    dummyCarItem(id = "100"),
+                    dummyCarItem(id = "101"),
+                    dummyCarItem(id = "102"),
+                    dummyCarItem(id = "103"),
+                    dummyCarItem(id = "104"),
+                    dummyCarItem(id = "105")
+                )
+            )
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get not last page of list THEN return isLastPage false`() {
+        givenProductList(
+            listOf(
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "100")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "105")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "106")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "107")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "108")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "109")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "110"))
+            )
+        )
+
+        val getProductList = viewModel.isLastPage().test().await(1)
+        viewModel.setPageNumber(0)
+
+        getProductList
+            .assertValue(false)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get last page of list THEN return isLastPage true`() {
+        givenProductList(
+            listOf(
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "100")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "105"))
+            )
+        )
+
+        val getProductList = viewModel.isLastPage().test().await(1)
+        viewModel.setPageNumber(0)
+
+        getProductList
+            .assertValue(true)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
+    fun `GIVEN product list WHEN get distance range THEN return the distances of given first and last visible item `() {
+        givenProductList(
+            listOf(
+                dummyProduct(
+                    kind = ProductKind.CAR,
+                    item = dummyCar(id = "100", distanceInMeters = 100)
+                ),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "101")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "102")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "103")),
+                dummyProduct(kind = ProductKind.CAR, item = dummyCar(id = "104")),
+                dummyProduct(
+                    kind = ProductKind.CAR,
+                    item = dummyCar(id = "105", distanceInMeters = 200)
+                )
+            )
+        )
+
+        val getProductList = viewModel.getDistanceRange().test().await(1)
+        viewModel.setFirstLastVisibleItems(0 to 5)
+
+        getProductList
+            .assertValue(100 to 200)
+            .assertNoErrors()
+            .assertNotComplete()
+    }
+
+    @Test
     fun `GIVEN product list WHEN item click once third THEN don't show ad`() {
         givenProductList(listOf(dummyProduct()))
 

@@ -20,7 +20,8 @@
     <dimen name="text_size_L">18sp</dimen>
     <dimen name="text_size_M">16sp</dimen>
     <dimen name="text_size_S">14sp</dimen>
-    <dimen name="text_size_XS">11sp</dimen>
+    <dimen name="text_size_XS">12sp</dimen>
+    <dimen name="text_size_XXS">11sp</dimen>
 
     <dimen name="default_cell_height">56dp</dimen>
     <dimen name="medium_cell_height">48dp</dimen>

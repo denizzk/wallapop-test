@@ -20,31 +20,32 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.min
 
-class ProductListViewModel @Inject constructor(
+class ProductViewModel @Inject constructor(
     productRepository: ProductRepository
 ) : ViewModel() {
 
     private val disposables = CompositeDisposable()
 
-    private val sortingTypeSubject = BehaviorSubject.create<SortingType>()
     private val itemClickCountSubject = BehaviorSubject.createDefault(0)
+    private val sortingTypeSubject =
+        BehaviorSubject.createDefault<SortingType>(SortingType.DISTANCE_ASC)
 
     // inputs
-    private val pageNumberInput = BehaviorSubject.createDefault<Int>(0)
+    private val pageNumberInput = BehaviorSubject.create<Int>()
     private val distanceRangeInput = BehaviorSubject.createDefault<Pair<Int, Int>>(0 to 5)
-    private val sortingInput = PublishSubject.create<Unit>()
     private val productIdInput = PublishSubject.create<String>()
     private val productListLoadedInput = PublishSubject.create<Unit>()
     private val itemClickedInput = BehaviorSubject.create<Unit>()
+    private val sortingInput = PublishSubject.create<Unit>()
 
     // outputs
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val pagedListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val isLastPageOutput = PublishSubject.create<Boolean>()
     private val distanceRangeOutput = PublishSubject.create<Pair<Int, Int>>()
-    private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
     private val productOutput = BehaviorSubject.create<ProductItemModel>()
     private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
+    private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
 
     init {
         // distinct and sorted by distance product list stream
@@ -64,10 +65,10 @@ class ProductListViewModel @Inject constructor(
 
         // paging stream
         Observables
-            .combineLatest(pageNumberInput, productListOutput) { pageNumber, productList ->
-                val fromIndex = min(pageNumber * PAGE_SIZE, productList.size)
-                val toIndex = min(fromIndex + PAGE_SIZE, productList.size)
-                productList.subList(fromIndex, toIndex)
+            .combineLatest(pageNumberInput, productListOutput) { pageNumber, itemList ->
+                val fromIndex = min(pageNumber * PAGE_SIZE, itemList.size)
+                val toIndex = min(fromIndex + PAGE_SIZE, itemList.size)
+                itemList.subList(fromIndex, toIndex)
             }
             .subscribeBy(
                 onNext = pagedListOutput::onNext,
@@ -77,8 +78,8 @@ class ProductListViewModel @Inject constructor(
 
         // is last page stream
         pagedListOutput
-            .withLatestFrom(productListOutput) { pagedList, productList ->
-                pagedList.last() == productList.last()
+            .withLatestFrom(productListOutput) { pagedList, itemList ->
+                pagedList.last() == itemList.last()
             }
             .subscribeBy(
                 onNext = isLastPageOutput::onNext,
@@ -87,12 +88,12 @@ class ProductListViewModel @Inject constructor(
             .addTo(disposables)
 
         // distance range stream
-        Observables.combineLatest(distanceRangeInput, productListOutput) { range, productList ->
-            val firstItemDistance = productList[range.first].distanceInMeters ?: 0
-            val lastItemDistance = productList[range.second].distanceInMeters ?: 0
-            Timber.e("$firstItemDistance to $lastItemDistance")
-            firstItemDistance to lastItemDistance
-        }
+        Observables
+            .combineLatest(distanceRangeInput, productListOutput) { range, itemList ->
+                val firstItemDistance = itemList[range.first].distanceInMeters ?: 0
+                val lastItemDistance = itemList[range.second].distanceInMeters ?: 0
+                firstItemDistance to lastItemDistance
+            }
             .distinctUntilChanged()
             .subscribeBy(
                 onNext = distanceRangeOutput::onNext,
@@ -133,13 +134,13 @@ class ProductListViewModel @Inject constructor(
 
         // TODO: fix
         // sort list by sorting type stream
-        sortingTypeSubject
-            .withLatestFrom(productListOutput)
-            .doOnNext { sortProductList(it.first, it.second) }
-            .map { it.second }
-            .doOnNext(productListOutput::onNext)
+        sortingInput
+            .withLatestFrom(productListOutput, sortingTypeSubject) { _, list, type ->
+                Timber.e("$type, ${list.size}")
+                sortProductList(type, list)
+            }
             .subscribeBy(
-                onNext = productListOutput::onNext,
+                onNext = sortedProductListOutput::onNext,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -176,6 +177,7 @@ class ProductListViewModel @Inject constructor(
 
     fun setSortingType(type: SortingType) {
         sortingTypeSubject.onNext(type)
+        Timber.e("fun setSortingType($type: SortingType)")
     }
 
     fun setSorting() {
@@ -216,6 +218,12 @@ class ProductListViewModel @Inject constructor(
         return distance1.compareTo(distance2)
     }
 
+    private fun increaseClickCount(count: Int) = count + 1
+
+    private fun isThirdClick(count: Int): Boolean {
+        return count != 0 && count % AdInitializer.REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
+    }
+
     private fun sortProductList(
         type: SortingType?,
         productList: List<ProductItemModel>
@@ -227,11 +235,5 @@ class ProductListViewModel @Inject constructor(
             SortingType.PRICE_DESC -> productList.sortedByDescending { it.price }
             else -> productList.sortedBy { it.distanceInMeters }
         }
-    }
-
-    private fun increaseClickCount(count: Int) = count + 1
-
-    private fun isThirdClick(count: Int): Boolean {
-        return count != 0 && count % AdInitializer.REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
     }
 }

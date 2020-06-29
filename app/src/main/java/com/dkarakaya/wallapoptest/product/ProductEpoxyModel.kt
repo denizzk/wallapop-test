@@ -1,4 +1,4 @@
-package com.dkarakaya.wallapoptest.productlist
+package com.dkarakaya.wallapoptest.product
 
 import android.view.View
 import android.widget.ImageView

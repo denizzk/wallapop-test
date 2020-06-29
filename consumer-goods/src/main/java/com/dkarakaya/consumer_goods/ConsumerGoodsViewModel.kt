@@ -5,9 +5,12 @@ import com.dkarakaya.consumer_goods.mapper.mapToConsumerGoodsItemModel
 import com.dkarakaya.consumer_goods.model.ConsumerGoodsItemModel
 import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.repository.ProductRepository
+import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer.Companion.REQUIRED_CLICK_COUNT_TO_SHOW_AD
+import com.dkarakaya.core.util.RecyclerViewPaginator
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
@@ -16,6 +19,7 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.min
 
 class ConsumerGoodsViewModel @Inject constructor(
     productRepository: ProductRepository
@@ -26,11 +30,16 @@ class ConsumerGoodsViewModel @Inject constructor(
     private val itemClickCountSubject = BehaviorSubject.createDefault(0)
 
     // inputs
-    private val sortingTypeInput = PublishSubject.create<SortingType>()
+    private val pageNumberInput = BehaviorSubject.create<Int>()
+    private val distanceRangeInput = BehaviorSubject.createDefault<Pair<Int, Int>>(0 to 5)
     private val itemClickedInput = BehaviorSubject.create<Unit>()
+    private val sortingTypeInput = PublishSubject.create<SortingType>()
 
     // outputs
     private val consumerGoodsListOutput = BehaviorSubject.create<List<ConsumerGoodsItemModel>>()
+    private val pagedListOutput = BehaviorSubject.create<List<ConsumerGoodsItemModel>>()
+    private val isLastPageOutput = PublishSubject.create<Boolean>()
+    private val distanceRangeOutput = PublishSubject.create<Pair<Int, Int>>()
     private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
 
     init {
@@ -46,6 +55,44 @@ class ConsumerGoodsViewModel @Inject constructor(
             }
             .subscribeBy(
                 onSuccess = consumerGoodsListOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        // paging stream
+        Observables
+            .combineLatest(pageNumberInput, consumerGoodsListOutput) { pageNumber, itemList ->
+                val fromIndex = min(pageNumber * RecyclerViewPaginator.PAGE_SIZE, itemList.size)
+                val toIndex = min(fromIndex + RecyclerViewPaginator.PAGE_SIZE, itemList.size)
+                itemList.subList(fromIndex, toIndex)
+            }
+            .subscribeBy(
+                onNext = pagedListOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        // is last page stream
+        pagedListOutput
+            .withLatestFrom(consumerGoodsListOutput) { pagedList, itemList ->
+                pagedList.last() == itemList.last()
+            }
+            .subscribeBy(
+                onNext = isLastPageOutput::onNext,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        // distance range stream
+        Observables
+            .combineLatest(distanceRangeInput, consumerGoodsListOutput) { range, itemList ->
+                val firstItemDistance = itemList[range.first].distanceInMeters ?: 0
+                val lastItemDistance = itemList[range.second].distanceInMeters ?: 0
+                firstItemDistance to lastItemDistance
+            }
+            .distinctUntilChanged()
+            .subscribeBy(
+                onNext = distanceRangeOutput::onNext,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -92,6 +139,14 @@ class ConsumerGoodsViewModel @Inject constructor(
      * Inputs
      */
 
+    fun setPageNumber(pageNumber: Int) {
+        pageNumberInput.onNext(pageNumber)
+    }
+
+    fun setFirstLastVisibleItems(range: Pair<Int, Int>) {
+        distanceRangeInput.onNext(range)
+    }
+
     fun setSortingType(type: SortingType) {
         sortingTypeInput.onNext(type)
     }
@@ -105,6 +160,12 @@ class ConsumerGoodsViewModel @Inject constructor(
      */
 
     fun getConsumerGoodsList(): Observable<List<ConsumerGoodsItemModel>> = consumerGoodsListOutput
+
+    fun getPagedList(): Observable<List<ConsumerGoodsItemModel>> = pagedListOutput
+
+    fun isLastPage(): Observable<Boolean> = isLastPageOutput
+
+    fun getDistanceRange(): Observable<Pair<Int, Int>> = distanceRangeOutput
 
     fun isShowingAd(): Observable<Boolean> = isShowingAdOutput
 
@@ -121,6 +182,12 @@ class ConsumerGoodsViewModel @Inject constructor(
         return distance1.compareTo(distance2)
     }
 
+    private fun increaseClickCount(count: Int) = count + 1
+
+    private fun isThirdClick(count: Int): Boolean {
+        return count != 0 && count % REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
+    }
+
     private fun sortListBy(
         type: SortingType?,
         carList: List<ConsumerGoodsItemModel>
@@ -132,18 +199,5 @@ class ConsumerGoodsViewModel @Inject constructor(
             SortingType.PRICE_DESC -> carList.sortedByDescending { it.price }
             else -> carList.sortedByDescending { it.distanceInMeters }
         }
-    }
-
-    private fun increaseClickCount(count: Int) = count + 1
-
-    private fun isThirdClick(count: Int): Boolean {
-        return count != 0 && count % REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
-    }
-
-    enum class SortingType {
-        DISTANCE_ASC,
-        DISTANCE_DESC,
-        PRICE_ASC,
-        PRICE_DESC
     }
 }

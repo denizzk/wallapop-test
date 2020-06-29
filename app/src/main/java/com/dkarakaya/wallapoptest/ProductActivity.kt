@@ -13,6 +13,8 @@ import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer
 import com.dkarakaya.core.util.RecyclerViewPaginator
+import com.dkarakaya.core.util.getSpannable
+import com.dkarakaya.core.util.setTextSize
 import com.dkarakaya.core.viewmodel.ViewModelFactory
 import com.dkarakaya.service.ServiceActivity
 import com.dkarakaya.service.details.ServiceDetailsFragment
@@ -20,7 +22,7 @@ import com.dkarakaya.wallapoptest.mapper.mapToCarItemModel
 import com.dkarakaya.wallapoptest.mapper.mapToConsumerGoodsItemModel
 import com.dkarakaya.wallapoptest.mapper.mapToServiceItemModel
 import com.dkarakaya.wallapoptest.model.ProductItemModel
-import com.dkarakaya.wallapoptest.productlist.ProductController
+import com.dkarakaya.wallapoptest.product.ProductController
 import com.dkarakaya.wallapoptest.sorting.SortingFragment
 import com.dkarakaya.wallapoptest.sorting.SortingFragment.Companion.TAG_SORTINGFRAGMENT
 import com.google.android.gms.ads.AdListener
@@ -37,13 +39,13 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
+class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
-    private val viewModel: ProductListViewModel by lazy {
-        ViewModelProvider(this, viewModelFactory).get(ProductListViewModel::class.java)
+    private val viewModel: ProductViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
     }
 
     private val disposables = CompositeDisposable()
@@ -68,6 +70,12 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         adInitializer.initInterstitialAd(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // workaround to load the first paged list when returned back from another activity
+        viewModel.setPageNumber(0)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
@@ -78,11 +86,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = {
-                    layout_distance.isVisible = true
-                    textDistanceRange.text =
-                        getString(R.string.distance_range_info, it.first, it.second)
-                },
+                onNext = ::setLayoutDistance,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -91,7 +95,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { showDetails(it) },
+                onNext = ::showDetails,
                 onError = Timber::e
             )
             .addTo(disposables)
@@ -109,10 +113,23 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { sortingType = it },
+                onNext = {
+                    Timber.e("onNext = { sortingType = $it")
+                    sortingType = it
+                },
                 onError = Timber::e
             )
             .addTo(disposables)
+    }
+
+    private fun setLayoutDistance(it: Pair<Int, Int>) {
+        layout_distance.isVisible = true
+        val textSize = resources.getDimensionPixelSize(R.dimen.text_size_M)
+        textDistanceRange.text = getSpannable(
+            R.string.distance_range_info,
+            it.first.toString().setTextSize(textSize),
+            it.second.toString().setTextSize(textSize)
+        )
     }
 
     private fun registerListeners() {
@@ -162,11 +179,10 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         }
         showProducts(controller)
         viewModel.itemClicked() // workaround for showing the ad on first third click
-        controller.productClickListener =
-            { product ->
-                viewModel.itemClicked()
-                showDetails(product)
-            }
+        controller.productClickListener = { item ->
+            viewModel.itemClicked()
+            showDetails(item)
+        }
     }
 
     private fun showProducts(controller: ProductController) {
@@ -186,9 +202,7 @@ class MainActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = {
-                    isLastPageNumber = it
-                },
+                onNext = { isLastPageNumber = it },
                 onError = Timber::e
             )
             .addTo(disposables)

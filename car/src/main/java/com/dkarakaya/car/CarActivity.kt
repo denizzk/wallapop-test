@@ -1,10 +1,15 @@
 package com.dkarakaya.car
 
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.car.details.CarDetailsFragment
 import com.dkarakaya.car.details.CarDetailsFragment.Companion.TAG_CARDETAILSFRAGMENT
 import com.dkarakaya.car.model.CarItemModel
 import com.dkarakaya.core.util.AdInitializer
+import com.dkarakaya.core.util.RecyclerViewPaginator
+import com.dkarakaya.core.util.getSpannable
+import com.dkarakaya.core.util.setTextSize
 import com.dkarakaya.core.viewmodel.ViewModelFactory
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -29,15 +34,26 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
 
     private val disposables = CompositeDisposable()
 
+    private var isLastPageNumber: Boolean = false
+
+    private lateinit var textDistanceRange: TextView
+
     @Inject
     lateinit var adInitializer: AdInitializer
     private var isShowingAd = false
 
     override fun onStart() {
         super.onStart()
+        Timber.plant(Timber.DebugTree())
         registerSubscriptions()
-        initRecyclerView()
+        render()
         adInitializer.initInterstitialAd(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // workaround to load the first paged list when returned back from another activity
+        viewModel.setPageNumber(0)
     }
 
     override fun onDestroy() {
@@ -46,6 +62,15 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
     }
 
     private fun registerSubscriptions() {
+        viewModel.getDistanceRange()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = ::setLayoutDistance,
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
         viewModel.isShowingAd()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -56,11 +81,38 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
             .addTo(disposables)
     }
 
+    private fun setLayoutDistance(it: Pair<Int, Int>) {
+        layout_distance.isVisible = true
+        val textSize = resources.getDimensionPixelSize(R.dimen.text_size_M)
+        textDistanceRange.text = getSpannable(
+            R.string.distance_range_info,
+            it.first.toString().setTextSize(textSize),
+            it.second.toString().setTextSize(textSize)
+        )
+    }
+
+    private fun render() {
+        textDistanceRange = findViewById(R.id.textDistanceRange)
+        initRecyclerView()
+    }
+
     private fun initRecyclerView() {
         val controller = CarController()
         recyclerView.apply {
             setHasFixedSize(true)
             adapter = controller.adapter
+            addOnScrollListener(object : RecyclerViewPaginator(recyclerView) {
+                override val isLastPage: Boolean
+                    get() = isLastPageNumber
+
+                override fun loadPage(pageNumber: Int) {
+                    viewModel.setPageNumber(pageNumber)
+                }
+
+                override fun distanceRange(range: Pair<Int, Int>) {
+                    viewModel.setFirstLastVisibleItems(range)
+                }
+            })
         }
         showCars(controller)
         viewModel.itemClicked() // workaround for showing the ad on first third click
@@ -71,11 +123,22 @@ class CarActivity : DaggerAppCompatActivity(R.layout.activity_car) {
     }
 
     private fun showCars(controller: CarController) {
-        viewModel.getCarList()
+        viewModel.getPagedList()
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { controller.cars = it },
+                onNext = {
+                    controller.cars += it
+                },
+                onError = Timber::e
+            )
+            .addTo(disposables)
+
+        viewModel.isLastPage()
+            .observeOn(Schedulers.io())
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = { isLastPageNumber = it },
                 onError = Timber::e
             )
             .addTo(disposables)

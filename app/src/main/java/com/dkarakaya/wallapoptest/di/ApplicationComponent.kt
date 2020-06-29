@@ -19,7 +19,7 @@ import javax.inject.Singleton
         RepositoryModule::class,
         BuilderModule::class,
         SortingFragmentModule::class,
-        MainModule::class,
+        ProductModule::class,
         CarModule::class,
         ConsumerGoodsModule::class,
         ServiceModule::class

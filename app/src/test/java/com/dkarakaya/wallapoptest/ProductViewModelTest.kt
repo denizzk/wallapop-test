@@ -16,11 +16,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Observable
 import org.junit.Test
 
-class ProductListViewModelTest {
+class ProductViewModelTest {
 
     private val productRepository = mock<ProductRepository>()
     private val viewModel by lazy {
-        ProductListViewModel(
+        ProductViewModel(
             productRepository = productRepository
         )
     }
@@ -159,7 +159,7 @@ class ProductListViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN get second page of list THEN return the first page of item list`() {
+    fun `GIVEN product list WHEN get second page of list THEN return the second page of item list`() {
         givenProductList(
             listOf(
                 dummyProduct(item = dummyConsumerGoods(id = "100")),
@@ -239,7 +239,7 @@ class ProductListViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN get not last page of list THEN return false`() {
+    fun `GIVEN product list WHEN get not last page of list THEN return isLastPage false`() {
         givenProductList(
             listOf(
                 dummyProduct(item = dummyConsumerGoods(id = "100")),
@@ -266,7 +266,7 @@ class ProductListViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN get last page of list THEN return true`() {
+    fun `GIVEN product list WHEN get last page of list THEN return isLastPage true`() {
         givenProductList(
             listOf(
                 dummyProduct(item = dummyConsumerGoods(id = "100")),
@@ -325,7 +325,7 @@ class ProductListViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN item click thrice third THEN don't show ad`() {
+    fun `GIVEN product list WHEN item click thrice third THEN show ad`() {
         givenProductList(listOf(dummyProduct()))
 
         viewModel.itemClicked()

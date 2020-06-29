@@ -43,7 +43,7 @@
         <item name="fontFamily">@font/regular</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/text_size_XS</item>
+        <item name="android:textSize">@dimen/text_size_XXS</item>
         <item name="android:textColor">@color/bluishWhite</item>
         <item name="android:letterSpacing">@dimen/text_letter_spacing</item>
     </style>
