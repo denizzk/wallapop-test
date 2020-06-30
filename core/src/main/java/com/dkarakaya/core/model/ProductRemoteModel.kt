@@ -23,51 +23,6 @@ enum class ProductKind {
 
 interface Item
 
-//data class Item(
-//    @SerializedName("id")
-//    @Expose
-//    val id: String,
-//    @SerializedName("image")
-//    @Expose
-//    val image: String,
-//    @SerializedName("price")
-//    @Expose
-//    val price: String,
-//    @SerializedName("name")
-//    @Expose
-//    val name: String,
-//    @SerializedName("color")
-//    @Expose
-//    val color: String,
-//    @SerializedName("category")
-//    @Expose
-//    val category: String,
-//    @SerializedName("closeDay")
-//    @Expose
-//    val closeDay: String,
-//    @SerializedName("minimunAge")
-//    @Expose
-//    val minimumAge: Int,
-//    @SerializedName("motor")
-//    @Expose
-//    val motor: String,
-//    @SerializedName("gearbox")
-//    @Expose
-//    val gearbox: String,
-//    @SerializedName("brand")
-//    @Expose
-//    val brand: String,
-//    @SerializedName("km")
-//    @Expose
-//    val km: Int,
-//    @SerializedName("description")
-//    @Expose
-//    val description: String,
-//    @SerializedName("distanceInMeters")
-//    @Expose
-//    val distanceInMeters: Int
-//)
-
 data class Car(
     @SerializedName("id")
     @Expose

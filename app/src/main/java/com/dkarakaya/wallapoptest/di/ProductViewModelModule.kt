@@ -19,7 +19,9 @@ interface ProductViewModelModule {
 
     companion object {
         @Provides
-        fun provideProductViewModel(productRepository: ProductRepository): ProductViewModel {
+        fun provideProductViewModel(
+            productRepository: ProductRepository
+        ): ProductViewModel {
             return ProductViewModel(
                 productRepository = productRepository
             )

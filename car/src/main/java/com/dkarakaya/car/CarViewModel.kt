@@ -5,7 +5,6 @@ import com.dkarakaya.car.mapper.mapToCarItemModel
 import com.dkarakaya.car.model.CarItemModel
 import com.dkarakaya.core.model.ProductKind
 import com.dkarakaya.core.repository.ProductRepository
-import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer.Companion.REQUIRED_CLICK_COUNT_TO_SHOW_AD
 import com.dkarakaya.core.util.RecyclerViewPaginator
 import io.reactivex.Observable
@@ -33,7 +32,6 @@ class CarViewModel @Inject constructor(
     private val pageNumberInput = BehaviorSubject.create<Int>()
     private val distanceRangeInput = BehaviorSubject.createDefault<Pair<Int, Int>>(0 to 5)
     private val itemClickedInput = BehaviorSubject.create<Unit>()
-    private val sortingTypeInput = PublishSubject.create<SortingType>()
 
     // outputs
     private val carListOutput = BehaviorSubject.create<List<CarItemModel>>()
@@ -97,18 +95,6 @@ class CarViewModel @Inject constructor(
             )
             .addTo(disposables)
 
-        // sort list by sorting type
-        sortingTypeInput
-            .withLatestFrom(carListOutput) { type, carList ->
-                sortListBy(type, carList)
-            }
-            .subscribeOn(Schedulers.computation())
-            .subscribeBy(
-                onNext = carListOutput::onNext,
-                onError = Timber::e
-            )
-            .addTo(disposables)
-
         // item click count stream
         itemClickedInput
             .withLatestFrom(itemClickCountSubject) { _, count ->
@@ -151,10 +137,6 @@ class CarViewModel @Inject constructor(
         itemClickedInput.onNext(Unit)
     }
 
-    fun setSortingType(type: SortingType) {
-        sortingTypeInput.onNext(type)
-    }
-
     /**
      * Outputs
      */
@@ -186,18 +168,5 @@ class CarViewModel @Inject constructor(
 
     private fun isThirdClick(count: Int): Boolean {
         return count != 0 && count % REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
-    }
-
-    private fun sortListBy(
-        type: SortingType?,
-        carList: List<CarItemModel>
-    ): List<CarItemModel> {
-        return when (type) {
-            SortingType.DISTANCE_ASC -> carList.sortedBy { it.distanceInMeters }
-            SortingType.DISTANCE_DESC -> carList.sortedByDescending { it.distanceInMeters }
-            SortingType.PRICE_ASC -> carList.sortedBy { it.price }
-            SortingType.PRICE_DESC -> carList.sortedByDescending { it.price }
-            else -> carList.sortedByDescending { it.distanceInMeters }
-        }
     }
 }

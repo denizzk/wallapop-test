@@ -2,7 +2,6 @@ package com.dkarakaya.wallapoptest
 
 import androidx.lifecycle.ViewModel
 import com.dkarakaya.core.repository.ProductRepository
-import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer
 import com.dkarakaya.core.util.RecyclerViewPaginator.Companion.PAGE_SIZE
 import com.dkarakaya.wallapoptest.mapper.mapToProductItemModel
@@ -17,6 +16,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -27,8 +27,6 @@ class ProductViewModel @Inject constructor(
     private val disposables = CompositeDisposable()
 
     private val itemClickCountSubject = BehaviorSubject.createDefault(0)
-    private val sortingTypeSubject =
-        BehaviorSubject.createDefault<SortingType>(SortingType.DISTANCE_ASC)
 
     // inputs
     private val pageNumberInput = BehaviorSubject.create<Int>()
@@ -36,7 +34,6 @@ class ProductViewModel @Inject constructor(
     private val productIdInput = PublishSubject.create<String>()
     private val productListLoadedInput = PublishSubject.create<Unit>()
     private val itemClickedInput = BehaviorSubject.create<Unit>()
-    private val sortingInput = PublishSubject.create<Unit>()
 
     // outputs
     private val productListOutput = BehaviorSubject.create<List<ProductItemModel>>()
@@ -45,7 +42,6 @@ class ProductViewModel @Inject constructor(
     private val distanceRangeOutput = PublishSubject.create<Pair<Int, Int>>()
     private val productOutput = BehaviorSubject.create<ProductItemModel>()
     private val isShowingAdOutput = BehaviorSubject.createDefault<Boolean>(false)
-    private val sortedProductListOutput = BehaviorSubject.create<List<ProductItemModel>>()
 
     init {
         // distinct and sorted by distance product list stream
@@ -102,8 +98,10 @@ class ProductViewModel @Inject constructor(
             .addTo(disposables)
 
         // get product by given id stream
-        productListLoadedInput
-            .withLatestFrom(productIdInput, productListOutput) { _, id, products ->
+        productIdInput
+            .delay(1, TimeUnit.SECONDS)
+            .distinctUntilChanged()
+            .withLatestFrom(productListOutput) { id, products ->
                 products.first { it.id == id }
             }
             .subscribeBy(
@@ -132,18 +130,6 @@ class ProductViewModel @Inject constructor(
             )
             .addTo(disposables)
 
-        // TODO: fix
-        // sort list by sorting type stream
-        sortingInput
-            .withLatestFrom(productListOutput, sortingTypeSubject) { _, list, type ->
-                Timber.e("$type, ${list.size}")
-                sortProductList(type, list)
-            }
-            .subscribeBy(
-                onNext = sortedProductListOutput::onNext,
-                onError = Timber::e
-            )
-            .addTo(disposables)
     }
 
     override fun onCleared() {
@@ -175,15 +161,6 @@ class ProductViewModel @Inject constructor(
         itemClickedInput.onNext(Unit)
     }
 
-    fun setSortingType(type: SortingType) {
-        sortingTypeSubject.onNext(type)
-        Timber.e("fun setSortingType($type: SortingType)")
-    }
-
-    fun setSorting() {
-        sortingInput.onNext(Unit)
-    }
-
     /**
      * Outputs
      */
@@ -199,11 +176,6 @@ class ProductViewModel @Inject constructor(
     fun getProduct(): Observable<ProductItemModel> = productOutput
 
     fun isShowingAd(): Observable<Boolean> = isShowingAdOutput
-
-    fun getSortedProductList(): Observable<List<ProductItemModel>> = sortedProductListOutput
-
-    fun getSortingType(): Observable<SortingType> = sortingTypeSubject
-
 
     /**
      * Methods
@@ -222,18 +194,5 @@ class ProductViewModel @Inject constructor(
 
     private fun isThirdClick(count: Int): Boolean {
         return count != 0 && count % AdInitializer.REQUIRED_CLICK_COUNT_TO_SHOW_AD == 0
-    }
-
-    private fun sortProductList(
-        type: SortingType?,
-        productList: List<ProductItemModel>
-    ): List<ProductItemModel> {
-        return when (type) {
-            SortingType.DISTANCE_ASC -> productList.sortedBy { it.distanceInMeters }
-            SortingType.DISTANCE_DESC -> productList.sortedByDescending { it.distanceInMeters }
-            SortingType.PRICE_ASC -> productList.sortedBy { it.price }
-            SortingType.PRICE_DESC -> productList.sortedByDescending { it.price }
-            else -> productList.sortedBy { it.distanceInMeters }
-        }
     }
 }

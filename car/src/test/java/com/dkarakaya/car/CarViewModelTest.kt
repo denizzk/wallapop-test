@@ -330,8 +330,6 @@ class CarViewModelTest {
             .assertNotComplete()
     }
 
-    // TODO: sorting tests
-
     private fun givenProductList(productList: List<ProductRemoteModel>) {
         whenever(productRepository.getProduct()).thenReturn(Observable.just(productList))
     }

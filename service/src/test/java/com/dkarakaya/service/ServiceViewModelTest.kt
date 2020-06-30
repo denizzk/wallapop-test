@@ -292,7 +292,7 @@ class ServiceViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN item click once third THEN don't show ad`() {
+    fun `GIVEN product list WHEN item click once THEN don't show ad`() {
         givenProductList(listOf(dummyProduct()))
 
         viewModel.itemClicked()
@@ -305,7 +305,7 @@ class ServiceViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN item click twice third THEN don't show ad`() {
+    fun `GIVEN product list WHEN item click twice THEN don't show ad`() {
         givenProductList(listOf(dummyProduct()))
 
         viewModel.itemClicked()
@@ -319,7 +319,7 @@ class ServiceViewModelTest {
     }
 
     @Test
-    fun `GIVEN product list WHEN item click thrice third THEN don't show ad`() {
+    fun `GIVEN product list WHEN item click thrice THEN don't show ad`() {
         givenProductList(listOf(dummyProduct()))
 
         viewModel.itemClicked()
@@ -332,8 +332,6 @@ class ServiceViewModelTest {
             .assertNoErrors()
             .assertNotComplete()
     }
-
-    // TODO: sorting tests
 
     private fun givenProductList(productList: List<ProductRemoteModel>) {
         whenever(productRepository.getProduct()).thenReturn(Observable.just(productList))

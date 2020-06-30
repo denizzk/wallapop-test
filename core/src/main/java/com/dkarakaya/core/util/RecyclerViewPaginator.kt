@@ -2,7 +2,6 @@ package com.dkarakaya.core.util
 
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import timber.log.Timber
 
 
 abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.OnScrollListener() {
@@ -78,9 +77,7 @@ abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.
             visibleItemCount = gridLayoutManager.childCount
             totalItemCount = gridLayoutManager.itemCount
             lastVisibleItemPosition = gridLayoutManager.findLastVisibleItemPosition()
-            Timber.e("BEFORE - visibleItemCount + lastVisibleItemPosition >= totalItemCount - $visibleItemCount + $lastVisibleItemPosition >= $totalItemCount")
             if (visibleItemCount + lastVisibleItemPosition >= totalItemCount) {
-                Timber.e("IN - visibleItemCount + lastVisibleItemPosition >= totalItemCount - $visibleItemCount + $lastVisibleItemPosition >= $totalItemCount")
                 if (!loading) {
                     currentPage++
                     loading = true
@@ -91,7 +88,6 @@ abstract class RecyclerViewPaginator(recyclerView: RecyclerView) : RecyclerView.
             }
         }
     }
-
 
     abstract fun loadPage(pageNumber: Int)
 

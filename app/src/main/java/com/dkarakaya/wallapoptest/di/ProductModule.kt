@@ -11,7 +11,9 @@ import dagger.android.ContributesAndroidInjector
 interface ProductModule {
 
     @ContributesAndroidInjector(
-        modules = [ProductViewModelModule::class]
+        modules = [
+            ProductViewModelModule::class
+        ]
     )
     fun contributeProductActivity(): ProductActivity
 

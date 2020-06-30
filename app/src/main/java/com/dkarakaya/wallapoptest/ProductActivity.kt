@@ -6,11 +6,9 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.dkarakaya.car.CarActivity
 import com.dkarakaya.car.details.CarDetailsFragment
-import com.dkarakaya.car.details.CarDetailsFragment.Companion.TAG_CARDETAILSFRAGMENT
 import com.dkarakaya.consumer_goods.ConsumerGoodsActivity
 import com.dkarakaya.consumer_goods.details.ConsumerGoodsDetailsFragment
 import com.dkarakaya.core.model.ProductKind
-import com.dkarakaya.core.sorting.SortingType
 import com.dkarakaya.core.util.AdInitializer
 import com.dkarakaya.core.util.RecyclerViewPaginator
 import com.dkarakaya.core.util.getSpannable
@@ -23,8 +21,6 @@ import com.dkarakaya.wallapoptest.mapper.mapToConsumerGoodsItemModel
 import com.dkarakaya.wallapoptest.mapper.mapToServiceItemModel
 import com.dkarakaya.wallapoptest.model.ProductItemModel
 import com.dkarakaya.wallapoptest.product.ProductController
-import com.dkarakaya.wallapoptest.sorting.SortingFragment
-import com.dkarakaya.wallapoptest.sorting.SortingFragment.Companion.TAG_SORTINGFRAGMENT
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -57,8 +53,6 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var adInitializer: AdInitializer
     private var isShowingAd = false
-
-    private lateinit var sortingType: SortingType
 
     override fun onStart() {
         super.onStart()
@@ -108,18 +102,6 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
                 onError = Timber::e
             )
             .addTo(disposables)
-
-        viewModel.getSortingType()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = {
-                    Timber.e("onNext = { sortingType = $it")
-                    sortingType = it
-                },
-                onError = Timber::e
-            )
-            .addTo(disposables)
     }
 
     private fun setLayoutDistance(it: Pair<Int, Int>) {
@@ -146,11 +128,6 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         buttonService.setOnClickListener {
             val intent = Intent(this, ServiceActivity::class.java)
             startActivity(intent)
-        }
-
-        buttonSorting.setOnClickListener {
-            SortingFragment.newInstance(SortingType.DISTANCE_ASC)
-                .show(supportFragmentManager, TAG_SORTINGFRAGMENT)
         }
     }
 
@@ -192,7 +169,6 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             .subscribeBy(
                 onNext = {
                     controller.products += it
-                    viewModel.productListLoaded()
                 },
                 onError = Timber::e
             )
@@ -206,18 +182,6 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
                 onError = Timber::e
             )
             .addTo(disposables)
-
-//        viewModel.getSortedProductList()
-//            .observeOn(Schedulers.io())
-//            .subscribeOn(AndroidSchedulers.mainThread())
-//            .subscribeBy(
-//                onNext = {
-//                    controller.products = it
-//                    viewModel.productListLoaded()
-//                },
-//                onError = Timber::e
-//            )
-//            .addTo(disposables)
     }
 
     private fun showDetails(item: ProductItemModel) {
@@ -226,7 +190,7 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             adInitializer.showInterstitialAd()
         } else {
             val newInstance = itemDetailsFragment(item)
-            newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
+            newInstance.show(supportFragmentManager, TAG_ITEMDETAILSFRAGMENT)
         }
     }
 
@@ -241,7 +205,7 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
             // If user closes the ad, s/he is directed to DetailsFragment.
             override fun onAdClosed() {
                 val newInstance = itemDetailsFragment(item)
-                newInstance.show(supportFragmentManager, TAG_CARDETAILSFRAGMENT)
+                newInstance.show(supportFragmentManager, TAG_ITEMDETAILSFRAGMENT)
                 adInitializer.interstitialAd.loadAd(AdRequest.Builder().build())
             }
         }
@@ -261,5 +225,9 @@ class ProductActivity : DaggerAppCompatActivity(R.layout.activity_main) {
         if (itemId != null) {
             viewModel.setProductId(itemId)
         }
+    }
+
+    companion object {
+        const val TAG_ITEMDETAILSFRAGMENT = "ItemDetailsFragment"
     }
 }

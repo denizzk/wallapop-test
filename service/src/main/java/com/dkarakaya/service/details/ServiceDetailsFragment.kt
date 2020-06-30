@@ -65,8 +65,6 @@ class ServiceDetailsFragment : BottomSheetDialogFragment() {
                         putParcelable(ARG_SERVICE, item)
                     }
                 }
-
-
         }
     }
 }

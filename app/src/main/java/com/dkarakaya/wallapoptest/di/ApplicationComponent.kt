@@ -6,7 +6,6 @@ import com.dkarakaya.core.di.BuilderModule
 import com.dkarakaya.core.repository.di.RepositoryModule
 import com.dkarakaya.service.di.ServiceModule
 import com.dkarakaya.wallapoptest.BaseApplication
-import com.dkarakaya.wallapoptest.sorting.di.SortingFragmentModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -18,7 +17,6 @@ import javax.inject.Singleton
         AndroidInjectionModule::class,
         RepositoryModule::class,
         BuilderModule::class,
-        SortingFragmentModule::class,
         ProductModule::class,
         CarModule::class,
         ConsumerGoodsModule::class,

@@ -67,10 +67,6 @@ class CarDetailsFragment : BottomSheetDialogFragment() {
                         putParcelable(ARG_CAR, item)
                     }
                 }
-
-
         }
     }
-
-    var companion = Companion
 }
